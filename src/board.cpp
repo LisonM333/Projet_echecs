@@ -1,8 +1,31 @@
 #include "./includes/board.hpp"
 #include <imgui.h>
 #include <iostream>
-#include <ostream>
+#include <array>
+#include <string>
 #include "quick_imgui/quick_imgui.hpp"
+
+
+
+const char * Board::get_label(int line,int col) const{
+    char label = this->m_lines[line][col];
+    switch (label)
+    {
+        case 'P': return "P";
+        case 'R': return  "R";
+        case 'N': return  "N";
+        case 'B': return  "B";
+        case 'Q': return  "Q";
+        case 'K': return  "K";
+        case 'p': return  "p";
+        case 'r': return  "r";
+        case 'n': return  "n";
+        case 'b': return  "b";
+        case 'q': return  "q";
+        case 'k': return  "k";
+        default:  return  " ";
+    }
+}
 
 void Board::board_representation (){
 
@@ -11,6 +34,7 @@ void Board::board_representation (){
     unsigned int colonne {}; //j
     char c_ligne {}; //chiffres
     char c_colonne {}; //lettres
+    const char * label{}; //piece sur la case
 
         quick_imgui::loop(
             "Chess",
@@ -24,7 +48,8 @@ void Board::board_representation (){
                         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
                         ImGui::Begin("Board");
 
-                        ImVec4 white_cases ={0.85f, 0.85f, 1.f, 1.f};
+                        // ImVec4 white_cases ={0.85f, 0.85f, 1.f, 1.f};
+                        ImVec4 white_cases ={0.65f, 0.65f, 0.80f, 1.f}; //plus sombre pour voir les labels
                         ImVec4 black_cases ={0.f, 0.f, 0.25f, 1.f};
                         
                         for (int i {4}; i>0; i--){
@@ -37,8 +62,9 @@ void Board::board_representation (){
                                 c_ligne = static_cast<char>(48+ligne);
                                 c_colonne = static_cast<char>(64+colonne);
                                 ImGui::PushID((ligne-1)*8 + colonne); 
-                                if (ImGui::Button("", ImVec2{200.f, 200.f}))
-                                    std::cout << c_colonne << c_ligne << "\n";
+                                label =  get_label(8-ligne,8-colonne);
+                                if (ImGui::Button(label, ImVec2{200.f, 200.f}))
+                                    std::cout << c_colonne << c_ligne << "test"<< label << "\n";
                                 ImGui::PopID();
                                 ImGui::PopStyleColor();
 
@@ -49,8 +75,9 @@ void Board::board_representation (){
                                 colonne = j*2;
                                 c_ligne = static_cast<char>(48+ligne);
                                 c_colonne = static_cast<char>(64+colonne);
-                                ImGui::PushID((ligne-1)*8 + colonne); 
-                                if (ImGui::Button("", ImVec2{200.f, 200.f}))
+                                ImGui::PushID((ligne-1)*8 + colonne);
+                                label =  get_label(8-ligne,8-colonne); 
+                                if (ImGui::Button(label, ImVec2{200.f, 200.f}))
                                     std::cout << c_colonne << c_ligne << "\n";
                                 ImGui::PopID();
                                 ImGui::PopStyleColor();
@@ -66,7 +93,8 @@ void Board::board_representation (){
                                 c_ligne = static_cast<char>(48+ligne);
                                 c_colonne = static_cast<char>(64+colonne);
                                 ImGui::PushID((ligne-1)*8 + colonne); 
-                                if (ImGui::Button("", ImVec2{200.f, 200.f}))
+                                label =  get_label(8-ligne,8-colonne); 
+                                if (ImGui::Button(label, ImVec2{200.f, 200.f}))
                                     std::cout << c_colonne << c_ligne << "\n";
                                 ImGui::PopID();
                                 ImGui::PopStyleColor();
@@ -79,7 +107,8 @@ void Board::board_representation (){
                                 c_ligne = static_cast<char>(48+ligne);
                                 c_colonne = static_cast<char>(64+colonne);
                                 ImGui::PushID((ligne-1)*8 + colonne); 
-                                if (ImGui::Button("", ImVec2{200.f, 200.f}))
+                                label =  get_label(8-ligne,8-colonne); 
+                                if (ImGui::Button(label, ImVec2{200.f, 200.f}))
                                     std::cout << c_colonne << c_ligne << "\n";
                                 ImGui::PopID();
                                 ImGui::PopStyleColor();
@@ -100,4 +129,17 @@ void Board::board_representation (){
             }
         );
 
-    }
+}
+
+void Board::classic_start (){
+    this->m_lines = {{
+        {{'r','n','b','q','k','b','n','r'}},
+        {{'p','p','p','p','p','p','p','p'}},
+        {{' ',' ',' ',' ',' ',' ',' ',' '}},
+        {{' ',' ',' ',' ',' ',' ',' ',' '}},
+        {{' ',' ',' ',' ',' ',' ',' ',' '}},
+        {{' ',' ',' ',' ',' ',' ',' ',' '}},
+        {{'P','P','P','P','P','P','P','P'}},
+        {{'R','N','B','Q','K','B','N','R'}}
+    }};
+}
