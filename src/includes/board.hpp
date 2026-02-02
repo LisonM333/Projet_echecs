@@ -15,3 +15,5 @@ class Board {
     // void transform_pawn();
 
 };
+
+bool piece_color (const char * label);
