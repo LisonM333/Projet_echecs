@@ -8,10 +8,11 @@ class Board {
 
     public:
     Board () {};
+    void show_lines();
     void board_representation();
     void classic_start();
     const char * get_label(int line, int col) const;
-    // void updates_lines();
+    void updates_lines(std::pair<int, int> start, std::pair<int,int> end);
     // void transform_pawn();
 
 };
