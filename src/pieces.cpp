@@ -64,8 +64,11 @@ static std::vector<Position> get_knight_moves(const Position& current_position)
     {
         for (int second_direction : directions)
         {
-            const Position new_position = {.x = steps_first_direction * first_direction, .y = steps_second_direction * second_direction};
-            relative_moves.push_back({new_position});
+            const int x = steps_first_direction * first_direction;
+            const int y = steps_second_direction * second_direction;
+
+            relative_moves.push_back({.x = x, .y = y});
+            relative_moves.push_back({.x = y, .y = x});
         }
     }
     return apply_moves_to_position(relative_moves, current_position);
