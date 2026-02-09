@@ -35,15 +35,15 @@ static std::vector<Position> get_pawn_moves(const Position& current_position, co
 
     const int                   direction{is_white ? 1 : -1};
     const std::vector<Position> relative_moves{
-        {.x = direction, .y = 0},
-        {.x = direction * 2, .y = 0},
+        {.x = 0, .y = direction},
+        {.x = 0, .y = direction * 2},
         {.x = direction, .y = direction},
         {.x = -direction, .y = direction},
     };
     return apply_moves_to_position(relative_moves, current_position);
 };
 
-std::vector<Position> get_knight_moves(const Position& current_position)
+static std::vector<Position> get_knight_moves(const Position& current_position)
 {
     std::array<int, 2> directions{-1, 1};
     const int          steps_first_direction{2};
@@ -72,11 +72,11 @@ std::vector<Position> get_knight_moves(const Position& current_position)
 }
 
 // std::vector<Position> get_moves(Board &board)
-std::vector<Position> Piece::get_moves()
+std::vector<Position> Piece::get_moves() const
 {
     switch (type)
     {
-    case piece_type::PAWN: // TODO : check if it's the correct implementation cause for start it can move 2 in a row
+    case piece_type::PAWN: // TODO(check) : check if it's the correct implementation cause for start it can move 2 in a row
     {
         return get_pawn_moves(current_position, is_white);
     }
@@ -86,6 +86,7 @@ std::vector<Position> Piece::get_moves()
     }
 
     default:
+        std::cerr << "[pieces.cpp] default case in switch Pieces::get_moves()";
         return {};
     }
     return {};

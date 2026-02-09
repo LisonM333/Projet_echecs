@@ -1,8 +1,9 @@
 #pragma once
 
+#include <cstdint>
 #include <vector>
 
-enum class piece_type {
+enum class piece_type : uint8_t {
     PAWN,
     KNIGHT,
     KING,
@@ -23,7 +24,7 @@ struct Piece {
     char                  piece_representation;
     Position              initial_position;
     Position              current_position;
-    std::vector<Position> get_moves();
+    std::vector<Position> get_moves() const;
 };
 
 Position operator+(Position& from, const int& to);
