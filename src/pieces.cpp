@@ -131,10 +131,10 @@ static std::vector<Position> get_king_moves(const Position& current_position)
     return apply_moves_to_position(relative_moves, current_position);
 };
 
-static std::vector<Position> get_queen_moves(Position& current_position)
+static std::vector<Position> get_queen_moves(const Position& current_position)
 {
     std::vector<Position> relative_moves{};
-    relative_moves.reserve(8);
+    relative_moves.reserve(56);
 
     std::vector<Position> lateral_moves  = {get_lateral_moves(8)};
     std::vector<Position> diagonal_moves = {get_diagonal_moves(8)};
@@ -163,6 +163,12 @@ std::vector<Position> Piece::get_moves() const
     {
         return get_king_moves(current_position);
     }
+
+    case piece_type::QUEEN:
+    {
+        return get_queen_moves(current_position);
+    }
+
     default:
         std::cerr << "[pieces.cpp] default case in switch Pieces::get_moves()";
         return {};
