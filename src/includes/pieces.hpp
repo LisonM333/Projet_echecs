@@ -14,8 +14,13 @@ enum class piece_type : uint8_t {
 
 // temporary
 struct Position {
-    int x; // number
-    int y; // letter
+    int m_x; // number
+    int m_y; // letter
+
+    Position operator+(const Position& pos) const;
+    bool     operator==(const Position& pos) const;
+    bool     operator<(const Position& pos) const;
+    // bool     operator>(const Position& pos) const;
 };
 
 struct Steps {
@@ -31,9 +36,5 @@ struct Piece {
     Position              current_position;
     std::vector<Position> get_moves() const;
 };
-
-Position operator+(Position& from, const int& to);
-Position operator+(Position& from, const Position& to);
-bool     operator==(Position& pos_1, Position& pos_2);
 
 std::vector<Position> move(Piece& piece, Position& position);
