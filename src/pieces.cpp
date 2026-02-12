@@ -80,17 +80,68 @@ static std::vector<Position> get_knight_moves(const Position& current_position)
 
     return apply_moves_to_position(relative_moves, current_position);
 }
+
+// TODO(later) : apply positions is on all of moves maybe get relatives moves and all apply in the same place
+
+static std::vector<Position> get_diagonal_moves(const int& max_steps)
+{
+    std::vector<Position> moves{};
+    std::array<int, 2>    directions{-1, 1};
+
     for (int first_direction : directions)
     {
         for (int second_direction : directions)
         {
-            const int x = steps_first_direction * first_direction;
-            const int y = steps_second_direction * second_direction;
-
-            relative_moves.push_back({.x = x, .y = y});
-            relative_moves.push_back({.x = y, .y = x});
+            for (int step{1}; step <= max_steps; step++)
+            {
+                moves.push_back({.x = step * first_direction, .y = step * second_direction});
+            }
         }
     }
+    return {moves};
+}
+
+static std::vector<Position> get_lateral_moves(const int& max_steps)
+{
+    std::vector<Position> moves{};
+    std::array<int, 2>    directions{-1, 1};
+
+    for (int first_direction : directions)
+    {
+        for (int step{1}; step <= max_steps; step++)
+        {
+            moves.push_back({.x = step * first_direction, .y = 0});
+            moves.push_back({.x = 0, .y = step * first_direction});
+        }
+    }
+    return {moves};
+}
+
+static std::vector<Position> get_king_moves(const Position& current_position)
+{
+    std::vector<Position> relative_moves{};
+    relative_moves.reserve(8);
+
+    std::vector<Position> lateral_moves  = {get_lateral_moves(1)};
+    std::vector<Position> diagonal_moves = {get_diagonal_moves(1)};
+
+    relative_moves.insert(relative_moves.begin(), lateral_moves.begin(), lateral_moves.end());
+    relative_moves.insert(relative_moves.begin(), diagonal_moves.begin(), diagonal_moves.end());
+
+    return apply_moves_to_position(relative_moves, current_position);
+};
+
+static std::vector<Position> get_queen_moves(Position& current_position)
+{
+    std::vector<Position> relative_moves{};
+    relative_moves.reserve(8);
+
+    std::vector<Position> lateral_moves  = {get_lateral_moves(8)};
+    std::vector<Position> diagonal_moves = {get_diagonal_moves(8)};
+
+    relative_moves.insert(relative_moves.begin(), lateral_moves.begin(), lateral_moves.end());
+    relative_moves.insert(relative_moves.begin(), diagonal_moves.begin(), diagonal_moves.end());
+
     return apply_moves_to_position(relative_moves, current_position);
 }
 
@@ -108,6 +159,10 @@ std::vector<Position> Piece::get_moves() const
         return get_knight_moves(current_position);
     }
 
+    case piece_type::KING:
+    {
+        return get_king_moves(current_position);
+    }
     default:
         std::cerr << "[pieces.cpp] default case in switch Pieces::get_moves()";
         return {};
