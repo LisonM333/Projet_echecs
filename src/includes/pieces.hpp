@@ -18,6 +18,11 @@ struct Position {
     int y; // letter
 };
 
+struct Steps {
+    int first_direction;
+    int second_direction;
+};
+
 struct Piece {
     piece_type            type;
     bool                  is_white;

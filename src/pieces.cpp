@@ -43,14 +43,32 @@ static std::vector<Position> get_pawn_moves(const Position& current_position, co
     return apply_moves_to_position(relative_moves, current_position);
 };
 
+static std::vector<Position> get_positions_with_fixed_x_y_steps(const Steps& steps)
+{
+    std::vector<Position> fixed_positions{};
+    fixed_positions.reserve(8);
+
+    std::array<int, 2> directions{-1, 1};
+    for (int first_direction : directions)
+    {
+        for (int second_direction : directions)
+        {
+            const int x = steps.first_direction * first_direction;
+            const int y = steps.second_direction * second_direction;
+
+            fixed_positions.push_back({.x = x, .y = y});
+            fixed_positions.push_back({.x = y, .y = x});
+        }
+    }
+    return {fixed_positions};
+}
+
 static std::vector<Position> get_knight_moves(const Position& current_position)
 {
-    std::array<int, 2> directions{-1, 1};
-    const int          steps_first_direction{2};
-    const int          steps_second_direction{1};
-
     std::vector<Position> relative_moves{};
     relative_moves.reserve(8);
+
+    relative_moves = {get_positions_with_fixed_x_y_steps({.first_direction = 2, .second_direction = 1})};
 
     // {pos+2, pos+1} ; {pos+2, pos-1}; {pos-2, pos+1}; {pos-2, pos-1};
     // {pos+1, pos+2} ; {pos-1, pos+2}; {pos+1, pos-2}; {pos-1, pos-2};
@@ -60,6 +78,8 @@ static std::vector<Position> get_knight_moves(const Position& current_position)
     first*direction, second*-1
     */
 
+    return apply_moves_to_position(relative_moves, current_position);
+}
     for (int first_direction : directions)
     {
         for (int second_direction : directions)
