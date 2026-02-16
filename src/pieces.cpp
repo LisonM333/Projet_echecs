@@ -156,6 +156,12 @@ static std::vector<Position> get_rook_moves(const Position& current_position)
     return apply_moves_to_position(relative_moves, current_position);
 }
 
+static std::vector<Position> get_bishop_moves(const Position& current_position)
+{
+    std::vector<Position> relative_moves{get_diagonal_moves(8)};
+    return apply_moves_to_position(relative_moves, current_position);
+}
+
 // std::vector<Position> get_moves(Board &board)
 std::vector<Position> Piece::get_moves() const
 {
@@ -183,6 +189,11 @@ std::vector<Position> Piece::get_moves() const
     case piece_type::ROOK:
     {
         return get_rook_moves(current_position);
+    }
+
+    case piece_type::BISHOP:
+    {
+        return get_bishop_moves(current_position);
     }
 
     default:
