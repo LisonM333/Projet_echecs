@@ -1,6 +1,6 @@
 #pragma once
 #include <array>
-#include <random>
+#include <imgui.h>
 #include <vector>
 
 struct Position {
@@ -15,23 +15,27 @@ class Board {
     private :
     std::array<std::array<char,8>,8> m_lines;
 
+
     public:
-    Board () {};
-    void show_lines();
-    bool square_is_empty(Position square){if (square.x != 8){return (m_lines[square.x][square.y]== ' ');} else {return false;}};
+    void show_lines() const;
+
+    void square_representation(const int& line,const int& colum, const char*& label, const ImVec4& colo_case, const ImVec4& colo_piece, bool& selected) const;
     void board_representation();
     void classic_start();
-    const char * get_label(int line, int col) const;
-    void updates_lines(Position start, Position end);
 
-    std::vector <Position> get_squares_possible(Position test); //temporary fonction to teste
-    bool square_colored(std::vector <Position> squares, Position square);
+    const char * get_label(int line, int colum) const;
+    bool square_colored(const std::vector<Position>& squares,const Position& square) const;
+    bool get_piece_color (const char *& label) const;
+    bool square_is_empty(const Position& square) const {if (square.x != 8){return (m_lines[square.x][square.y]== ' ');} else {return false;}};
 
+    std::vector <Position> get_squares_possible(const Position& position) const;//temporary function to test
+    void updates_lines(const Position& start, const Position& end);
+    
     // void transform_pawn();
 
 };
 
-bool piece_color (const char * label);
+
 
 
 
