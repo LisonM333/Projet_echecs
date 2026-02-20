@@ -22,8 +22,9 @@ class Board {
     void square_representation(const int& line,const int& colum, const char*& label, const ImVec4& colo_case, const ImVec4& colo_piece, bool& selected) const;
     void board_representation();
     void classic_start();
+    void move_gestion(std::pair<Position,Position>& move, std::vector<Position>& list);
 
-    const char * get_label(int line, int colum) const;
+    const char * get_label(const int& line,const int& colum) const;
     bool square_colored(const std::vector<Position>& squares,const Position& square) const;
     bool get_piece_color (const char *& label) const;
     bool square_is_empty(const Position& square) const {if (square.x != 8){return (m_lines[square.x][square.y]== ' ');} else {return false;}};

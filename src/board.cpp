@@ -23,7 +23,7 @@ std::vector <Position> rOoK_move {
 
 
 
-const char * Board::get_label(int line, int colum) const{//function translating the char in the table of pieces positions (m_lines) to a string readable by the button (to label)
+const char * Board::get_label(const int& line,const int& colum) const{//function translating the char in the table of pieces positions (m_lines) to a string readable by the button (to label)
     char label = this->m_lines[line][colum];
     switch (label) {
         case 'P': return "P";
@@ -93,6 +93,26 @@ void Board::updates_lines(const Position& start, const Position& end){//update m
         
         std::cout << "moved ! " <<"\n";
     }
+}
+
+void Board::move_gestion(std::pair<Position, Position>& move, std::vector<Position>& list){
+    //get the list of position possible after a piece was selected
+    if (move.first.x != 8 && move.second.x == 8){
+        list = get_squares_possible(move.first);
+    }
+
+    //avoid moving from an empty square
+    if (square_is_empty(move.first)){
+        move = {{.x=8,.y=8},{.x=8,.y=8}};
+        list = zero;
+    }
+
+    //if the piece is selected and is final position too, m-lines is update
+    if (move.first.x != 8 && move.second.x != 8){
+        updates_lines(move.first, move.second);
+        move = {{.x=8,.y=8},{.x=8,.y=8}};
+        list = zero;
+    } //a condition to have the good color or eat a piece should be added, maybe
 }
 
 void Board::square_representation (const int& line,const int& colum, const char*& label, const ImVec4& colo_case, const ImVec4& colo_piece, bool& selected) const { //responsabilise the apparence of one square
@@ -248,29 +268,7 @@ void Board::board_representation (){ //function generating the visual of the boa
                             ImGui::NewLine();
                         }
 
-                       // move_gestion(move);
-
-
-
-
-                        //get the list of position possible after a piece was selected
-                        if (move.first.x != 8 && move.second.x == 8){
-                            list_of_possible_move = get_squares_possible(move.first);
-                        }
-
-                        //avoid moving from an empty square
-                        if (square_is_empty(move.first)){
-                            move = {{.x=8,.y=8},{.x=8,.y=8}};
-                            list_of_possible_move = zero;
-                        }
-
-                        //if the piece is selected and is final position too, m-lines is update
-                        if (move.first.x != 8 && move.second.x != 8){
-                            updates_lines(move.first, move.second);
-                            move = {{.x=8,.y=8},{.x=8,.y=8}};
-                            list_of_possible_move = zero;
-                        } //a condition to have the good color or eat a piece should be added, maybe
-
+                        move_gestion(move, list_of_possible_move);
 
                         ImGui::End();
                         ImGui::PopStyleVar(3);
