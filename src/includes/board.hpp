@@ -28,11 +28,13 @@ class Board {
     bool square_colored(const std::vector<Position>& squares,const Position& square) const;
     bool get_piece_color (const char *& label) const;
     bool square_is_empty(const Position& square) const {if (square.x != 8){return (m_lines[square.x][square.y]== ' ');} else {return false;}};
+    template <typename T, typename Q>
+    bool is_in(const T& value, const std::vector<Q>& list) const; // T and Q are different only for the case of the comparaison between char* and string
 
     std::vector <Position> get_squares_possible(const Position& position) const;//temporary function to test
     void updates_lines(const Position& start, const Position& end);
     
-    // void transform_pawn();
+    void transform_pawn(std::pair<Position,Position>& move);
 
 };
 

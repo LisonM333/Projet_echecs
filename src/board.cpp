@@ -12,16 +12,24 @@ std::vector <Position> zero {};
 
 
 //temporary list of position possibles
-std::vector <Position> pawn_move {{.x=5,.y=0},{.x=5,.y=1},{.x=5,.y=2},{.x=5,.y=3},{.x=5,.y=4},{.x=5,.y=5},{.x=5,.y=6},{.x=5,.y=7}};
-std::vector <Position> PAWN_move {{.x=2,.y=0},{.x=2,.y=1},{.x=2,.y=2},{.x=2,.y=3},{.x=2,.y=4},{.x=2,.y=5},{.x=2,.y=6},{.x=2,.y=7}};
+std::vector <Position> pawn_move {{.x=5,.y=0},{.x=5,.y=1},{.x=5,.y=2},{.x=5,.y=3},{.x=5,.y=4},{.x=5,.y=5},{.x=5,.y=6},{.x=5,.y=7}
+,{.x=0,.y=0},{.x=7,.y=7}};
+std::vector <Position> PAWN_move {{.x=2,.y=0},{.x=2,.y=1},{.x=2,.y=2},{.x=2,.y=3},{.x=2,.y=4},{.x=2,.y=5},{.x=2,.y=6},{.x=2,.y=7}
+,{.x=0,.y=0},{.x=7,.y=7}};
 std::vector <Position> rOoK_move {
 {.x=0,.y=0},{.x=0,.y=1},{.x=0,.y=2},{.x=0,.y=3},{.x=0,.y=4},{.x=0,.y=5},{.x=0,.y=6},{.x=0,.y=7},
 {.x=7,.y=1},{.x=7,.y=2},{.x=7,.y=3},{.x=7,.y=4},{.x=7,.y=5},{.x=7,.y=6},{.x=7,.y=7},
 {.x=1,.y=0},{.x=2,.y=0},{.x=3,.y=0},{.x=4,.y=0},{.x=5,.y=0},{.x=6,.y=0},{.x=7,.y=0},
 {.x=1,.y=7},{.x=2,.y=7},{.x=3,.y=7},{.x=4,.y=7},{.x=5,.y=7},{.x=6,.y=7}};
 
-
-
+template <typename T, typename Q>
+bool Board::is_in (const T& value, const std::vector<Q>& list) const{
+    size_t size {list.size()};
+    for (int i{0};i<size;i++){
+        if (value == list[i]){return true;}
+    }
+    return false;
+}
 
 const char * Board::get_label(const int& line,const int& colum) const{//function translating the char in the table of pieces positions (m_lines) to a string readable by the button (to label)
     char label = this->m_lines[line][colum];
@@ -44,13 +52,8 @@ const char * Board::get_label(const int& line,const int& colum) const{//function
 
 
 bool Board::get_piece_color (const char *& label) const{ //fonction giving which color the text label should be, depending of the label of a button
-    std::array<std::string, 6> black {"p","r","n","b","k","q"};
-    for (int i{0};i<6;i++){
-        if (label == black[i]){
-            return false;
-        }
-    }
-    return true;
+    std::vector<std::string> black {"p","r","n","b","k","q"};
+    return !(is_in(label, black));    
 }//return true for white, false for black
 
 
@@ -66,10 +69,7 @@ std::vector <Position> Board::get_squares_possible(const Position& position) con
 
 
 bool Board::square_colored(const std::vector<Position>& squares, const Position& square) const {//verify if the square is in the list of position where the piece can be moved
-    for (const auto& s : squares){
-        if (square == s){return true;}
-    }
-    return false;
+    return is_in(square, squares);
 }
 
 
@@ -95,7 +95,17 @@ void Board::updates_lines(const Position& start, const Position& end){//update m
     }
 }
 
-void Board::move_gestion(std::pair<Position, Position>& move, std::vector<Position>& list){
+void Board::transform_pawn(std::pair<Position,Position>& move){// WILL make apear a pop up to change the pawn
+    std::vector<Position> edges { {.x=0,.y=0}, {.x=0,.y=1}, {.x=0,.y=2}, {.x=0,.y=3}, {.x=0,.y=4}, {.x=0,.y=5}, {.x=0,.y=6}, {.x=0,.y=7},
+                                {.x=7,.y=0}, {.x=7,.y=1}, {.x=7,.y=2}, {.x=7,.y=3}, {.x=7,.y=4}, {.x=7,.y=5}, {.x=7,.y=6}, {.x=7,.y=7}};
+    if (m_lines[move.first.x][move.first.y]=='p'||m_lines[move.first.x][move.first.y]=='P'){
+        if(is_in(move.second, edges)){
+            std::cout<< "It's a pawn at the edge !" << '\n';
+        }
+    }
+}
+
+void Board::move_gestion(std::pair<Position, Position>& move, std::vector<Position>& list){//gestion of the moves in general
     //get the list of position possible after a piece was selected
     if (move.first.x != 8 && move.second.x == 8){
         list = get_squares_possible(move.first);
@@ -109,6 +119,7 @@ void Board::move_gestion(std::pair<Position, Position>& move, std::vector<Positi
 
     //if the piece is selected and is final position too, m-lines is update
     if (move.first.x != 8 && move.second.x != 8){
+        transform_pawn(move);
         updates_lines(move.first, move.second);
         move = {{.x=8,.y=8},{.x=8,.y=8}};
         list = zero;
