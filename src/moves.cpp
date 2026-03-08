@@ -12,7 +12,7 @@ static std::vector<Position> generate_sliding_relative_moves(const std::vector<P
     {
         for (int step{1}; step <= max_steps; step++)
         {
-            relative_moves.push_back({.m_x = step * direction.m_x, .m_y = step * direction.m_y});
+            relative_moves.push_back({.x = step * direction.x, .y = step * direction.y});
         }
     }
     return relative_moves;
@@ -22,10 +22,10 @@ static std::vector<Position> generate_sliding_relative_moves(const std::vector<P
 static std::vector<Position> get_diagonal_relative_moves(const int& max_steps)
 {
     const std::vector<Position> diagonal_directions{
-        {.m_x = 1, .m_y = 1},
-        {.m_x = 1, .m_y = -1},
-        {.m_x = -1, .m_y = 1},
-        {.m_x = -1, .m_y = -1},
+        {.x = 1, .y = 1},
+        {.x = 1, .y = -1},
+        {.x = -1, .y = 1},
+        {.x = -1, .y = -1},
     };
 
     return generate_sliding_relative_moves(diagonal_directions, max_steps);
@@ -35,10 +35,10 @@ static std::vector<Position> get_diagonal_relative_moves(const int& max_steps)
 static std::vector<Position> get_lateral_relative_moves(const int& max_steps)
 {
     const std::vector<Position> lateral_directions{
-        {.m_x = 1, .m_y = 0},
-        {.m_x = -1, .m_y = 0},
-        {.m_x = 0, .m_y = 1},
-        {.m_x = 0, .m_y = -1},
+        {.x = 1, .y = 0},
+        {.x = -1, .y = 0},
+        {.x = 0, .y = 1},
+        {.x = 0, .y = -1},
     };
 
     return generate_sliding_relative_moves(lateral_directions, max_steps);
@@ -56,7 +56,7 @@ std::vector<Position> apply_relative_moves(const std::vector<Position>& relative
 
     for (const Position& move : relative_moves)
     {
-        final_moves.push_back({.m_x = position.m_x + move.m_x, .m_y = position.m_y + move.m_y});
+        final_moves.push_back({.x = position.x + move.x, .y = position.y + move.y});
     }
     return final_moves;
 };
@@ -68,13 +68,13 @@ std::vector<Position> apply_relative_moves(const std::vector<Position>& relative
 // doesn't check if pawn on starter square
 static std::vector<Position> get_pawn_forward_moves()
 {
-    return {{.m_x = 0, .m_y = 1}, {.m_x = 0, .m_y = 2}};
+    return {{.x = 0, .y = 1}, {.x = 0, .y = 2}};
 }
 
 // doesn't check for opposite piece
 static std::vector<Position> get_pawn_capture_moves()
 {
-    return {{.m_x = 1, .m_y = 1}, {.m_x = -1, .m_y = 1}};
+    return {{.x = 1, .y = 1}, {.x = -1, .y = 1}};
 }
 
 std::vector<Position> get_pawn_relative_moves()
@@ -103,8 +103,8 @@ std::vector<Position> get_knight_relative_moves()
     {
         for (int sign_y : {-1, 1})
         {
-            positions.push_back({.m_x = sign_x * primary_direction, .m_y = sign_y * secondary_direction});
-            positions.push_back({.m_x = sign_x * secondary_direction, .m_y = sign_y * primary_direction});
+            positions.push_back({.x = sign_x * primary_direction, .y = sign_y * secondary_direction});
+            positions.push_back({.x = sign_x * secondary_direction, .y = sign_y * primary_direction});
         }
     }
     return positions;

@@ -1,23 +1,7 @@
 #include "./includes/pieces.hpp"
 #include <iostream>
-#include <tuple>
 #include "includes/moves.hpp"
 #include "includes/types.hpp"
-
-Position Position::operator+(const Position& pos) const
-{
-    return {.m_x = m_x + pos.m_x, .m_y = m_y + pos.m_y};
-}
-
-bool Position::operator==(const Position& pos) const
-{
-    return m_x == pos.m_x && m_y == pos.m_y;
-}
-
-bool Position::operator<(const Position& pos) const
-{
-    return (std::tie(m_x, m_y) < std::tie(pos.m_x, pos.m_y));
-}
 
 static char piece_representation(piece_type const type)
 {
@@ -54,7 +38,7 @@ std::vector<Position> Piece::get_moves() const
     {
         for (Position& pos : relative_moves)
         {
-            pos.m_y = -pos.m_y;
+            pos.y = -pos.y;
         }
     }
     return {apply_relative_moves(relative_moves, current_position)};

@@ -1,8 +1,7 @@
 #pragma once
-#include "../includes/moves.hpp"
+#include <vector>
 #include "../includes/types.hpp"
-
-
+#include "../includes/board.hpp"
 
 struct Piece {
     piece_type            type;
