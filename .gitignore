@@ -2,3 +2,6 @@
 bin
 build/**
 .vscode
+
+CMakePresets.json
+out
