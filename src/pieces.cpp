@@ -14,10 +14,12 @@ static char piece_representation(piece_type const type)
     case piece_type::PAWN: return 'p';
     case piece_type::QUEEN: return 'q';
     case piece_type::ROOK: return 'r';
+    default:
+    {
+        std::cerr << "[pieces.cpp] unknown type in piece_representation switch";
+        return ' ';
+    };
     }
-
-    std::cerr << "[pieces.cpp] unknown type in piece_representation switch";
-    return '?';
 };
 
 static char apply_color(char piece_representation, bool is_white)

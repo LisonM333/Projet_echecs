@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "../includes/board.hpp"
+#include "../includes/pieces.hpp"
 #include "../includes/types.hpp"
 
 // apply relative moves to an absolute position on the board

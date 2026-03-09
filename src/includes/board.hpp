@@ -1,24 +1,9 @@
 #pragma once
-#include <array>
 #include <imgui.h>
+#include <array>
 #include <vector>
+#include "../includes/pieces.hpp"
 
-
-struct Position {
-    int x; // number
-    int y; // letter
-
-    bool operator==(const Position& B) const { return ((x == B.x) && (y == B.y)); };
-
-    bool operator<(const Position& B) const
-    {
-        if (x < B.x)
-            return true;
-        if (x > B.x)
-            return false;
-        return y < B.y;
-    }
-};
 
 class Board {
 private:

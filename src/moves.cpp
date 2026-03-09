@@ -165,7 +165,10 @@ std::vector<Position> get_relative_moves(const piece_type& type)
     case piece_type::QUEEN: return get_queen_relative_moves();
     case piece_type::ROOK: return get_rook_relative_moves();
     case piece_type::BISHOP: return get_bishop_relative_moves();
+    default:
+    {
+        std::cerr << "[pieces.cpp] unknown type in get_all_relative_moves_by_type switch";
+        return {};
     }
-    std::cerr << "[pieces.cpp] unknown type in get_all_relative_moves_by_type switch";
-    return {};
+    }
 };
