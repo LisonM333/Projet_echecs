@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <cstdint>
 #include "../includes/types.hpp"
 
 struct Position {
@@ -16,6 +17,13 @@ struct Position {
             return false;
         return y < B.y;
     }
+enum class piece_type : uint8_t {
+    PAWN,
+    KNIGHT,
+    KING,
+    QUEEN,
+    ROOK,
+    BISHOP,
 };
 
 struct Piece {
