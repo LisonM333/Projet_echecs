@@ -6,8 +6,6 @@
 #include "./includes/pieces.hpp"
 
 class Board {
-private:
-    std::array<std::array<char, 8>, 8> m_lines;
 
     private :
     std::array<std::array<Piece*,8>,8> m_lines = {};
