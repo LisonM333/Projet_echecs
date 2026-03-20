@@ -68,13 +68,13 @@ std::vector<Position> apply_relative_moves(const std::vector<Position>& relative
 // doesn't check if pawn on starter square
 static std::vector<Position> get_pawn_forward_moves()
 {
-    return {{.x = 0, .y = 1}, {.x = 0, .y = 2}};
+    return {{.x = 1, .y = 0}, {.x = 2, .y = 0}};
 }
 
 // doesn't check for opposite piece
 static std::vector<Position> get_pawn_capture_moves()
 {
-    return {{.x = 1, .y = 1}, {.x = -1, .y = 1}};
+    return {{.x = 1, .y = 1}, {.x = 1, .y = -1}};
 }
 
 std::vector<Position> get_pawn_relative_moves()
