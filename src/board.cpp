@@ -146,16 +146,16 @@ void Board::updates_lines(const Position& start, const Position& end){//update m
         if (m_lines[end.x][end.y] != nullptr) {
             if (m_lines[end.x][end.y]->is_white == m_lines[start.x][start.y]->is_white){return;}
                     
-                m_lines[end.x][end.y]->is_captured=true;}
+                m_lines[end.x][end.y]->is_captured=true;
         }
         m_lines[start.x][start.y]->current_position=end;
         //m_lines[end.x][end.y] = m_lines[start.x][start.y];
         //m_lines[start.x][start.y] = nullptr;
-
-        charge_lines();
-
-        std::cout << "moved ! " <<"\n";
     }
+    charge_lines();
+
+    std::cout << "moved ! " <<"\n";
+}
 
 
 void Board::transform_pawn(std::pair<Position,Position>& move){// WILL make apear a pop up to change the pawn
