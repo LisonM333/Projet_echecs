@@ -16,6 +16,7 @@ struct Position {
             return false;
         return y < B.y;
     }
+
 };
 
 struct Piece {
