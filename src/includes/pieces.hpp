@@ -22,6 +22,7 @@ struct Position {
 struct Piece {
     piece_type            type;
     bool                  is_white;
+    bool                  is_captured;
     Position              initial_position;
     Position              current_position;
     std::vector<Position> get_moves() const;

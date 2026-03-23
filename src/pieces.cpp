@@ -40,7 +40,7 @@ std::vector<Position> Piece::get_moves() const
     {
         for (Position& pos : relative_moves)
         {
-            pos.y = -pos.y;
+            pos.x = -pos.x;
         }
     }
     return {apply_relative_moves(relative_moves, current_position)};

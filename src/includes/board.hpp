@@ -13,6 +13,7 @@ class Board {
 
     public:
     //void show_lines() const;
+    void charge_lines ();
 
     void square_representation(const int& line, const int& colum, const char*& label, const ImVec4& colo_case, const ImVec4& colo_piece, bool& selected) const;
     void board_representation();
@@ -32,3 +33,6 @@ class Board {
 
     void transform_pawn(std::pair<Position, Position>& move);
 };
+
+inline bool operateur_egal_pos(const Position& a, const Position& b){return (a.x==b.x && a.y==b.y);};
+inline bool operateur_egal_piece(const Piece& a, const Piece& b){return operateur_egal_pos(a.initial_position, b.initial_position);};

@@ -12,55 +12,41 @@
 std::vector <Position> zero {};
 
 
-//temporary list of position possibles
-std::vector <Position> pawn_move {{.x=5,.y=0},{.x=5,.y=1},{.x=5,.y=2},{.x=5,.y=3},{.x=5,.y=4},{.x=5,.y=5},{.x=5,.y=6},{.x=5,.y=7}
-,{.x=0,.y=0},{.x=7,.y=7}};
-std::vector <Position> PAWN_move {{.x=2,.y=0},{.x=2,.y=1},{.x=2,.y=2},{.x=2,.y=3},{.x=2,.y=4},{.x=2,.y=5},{.x=2,.y=6},{.x=2,.y=7}
-,{.x=0,.y=0},{.x=7,.y=7}};
-std::vector <Position> rOoK_move {
-{.x=0,.y=0},{.x=0,.y=1},{.x=0,.y=2},{.x=0,.y=3},{.x=0,.y=4},{.x=0,.y=5},{.x=0,.y=6},{.x=0,.y=7},
-{.x=7,.y=1},{.x=7,.y=2},{.x=7,.y=3},{.x=7,.y=4},{.x=7,.y=5},{.x=7,.y=6},{.x=7,.y=7},
-{.x=1,.y=0},{.x=2,.y=0},{.x=3,.y=0},{.x=4,.y=0},{.x=5,.y=0},{.x=6,.y=0},{.x=7,.y=0},
-{.x=1,.y=7},{.x=2,.y=7},{.x=3,.y=7},{.x=4,.y=7},{.x=5,.y=7},{.x=6,.y=7}};
-
-
-
-
 
 
 //temporary instancations of the pieces
-Piece Pw_1 (piece_type::PAWN, true, {.x=1, .y=0},{.x=1, .y=0});
-Piece Pw_2 (piece_type::PAWN, true, {.x=1, .y=1},{.x=1, .y=1});
-Piece Pw_3 (piece_type::PAWN, true, {.x=1, .y=2},{.x=1, .y=2});
-Piece Pw_4 (piece_type::PAWN, true, {.x=1, .y=3},{.x=1, .y=3});
-Piece Pw_5 (piece_type::PAWN, true, {.x=1, .y=4},{.x=1, .y=4});
-Piece Pw_6 (piece_type::PAWN, true, {.x=1, .y=5},{.x=1, .y=5});
-Piece Pw_7 (piece_type::PAWN, true, {.x=1, .y=6},{.x=1, .y=6});
-Piece Pw_8 (piece_type::PAWN, true, {.x=1, .y=7},{.x=1, .y=7});
-Piece Pb_1 (piece_type::PAWN, false, {.x=6, .y=0},{.x=6, .y=0});
-Piece Pb_2 (piece_type::PAWN, false, {.x=6, .y=1},{.x=6, .y=1});
-Piece Pb_3 (piece_type::PAWN, false, {.x=6, .y=2},{.x=6, .y=2});
-Piece Pb_4 (piece_type::PAWN, false, {.x=6, .y=3},{.x=6, .y=3});
-Piece Pb_5 (piece_type::PAWN, false, {.x=6, .y=4},{.x=6, .y=4});
-Piece Pb_6 (piece_type::PAWN, false, {.x=6, .y=5},{.x=6, .y=5});
-Piece Pb_7 (piece_type::PAWN, false, {.x=6, .y=6},{.x=6, .y=6});
-Piece Pb_8 (piece_type::PAWN, false, {.x=6, .y=7},{.x=6, .y=7});
-Piece Rw_1 (piece_type::ROOK, true, {.x=0, .y=0},{.x=0, .y=0});
-Piece Rw_2 (piece_type::ROOK, true, {.x=0, .y=7},{.x=0, .y=7});
-Piece Nw_1 (piece_type::KNIGHT, true, {.x=0, .y=1},{.x=0, .y=1});
-Piece Nw_2 (piece_type::KNIGHT, true, {.x=0, .y=6},{.x=0, .y=6});
-Piece Bw_1 (piece_type::BISHOP, true, {.x=0, .y=2},{.x=0, .y=2});
-Piece Bw_2 (piece_type::BISHOP, true, {.x=0, .y=5},{.x=0, .y=5});
-Piece Qw (piece_type::QUEEN, true, {.x=0, .y=3},{.x=0, .y=3});
-Piece Kw (piece_type::KING, true, {.x=0, .y=4},{.x=0, .y=4});
-Piece Rb_1 (piece_type::ROOK, false, {.x=7, .y=0},{.x=7, .y=0});
-Piece Rb_2 (piece_type::ROOK, false, {.x=7, .y=7},{.x=7, .y=7});
-Piece Nb_1 (piece_type::KNIGHT, false, {.x=7, .y=1},{.x=7, .y=1});
-Piece Nb_2 (piece_type::KNIGHT, false, {.x=7, .y=6},{.x=7, .y=6});
-Piece Bb_1 (piece_type::BISHOP, false, {.x=7, .y=2},{.x=7, .y=2});
-Piece Bb_2 (piece_type::BISHOP, false, {.x=7, .y=5},{.x=7, .y=5});
-Piece Qb (piece_type::QUEEN, false, {.x=7, .y=3},{.x=7, .y=3});
-Piece Kb (piece_type::KING, false, {.x=7, .y=4},{.x=7, .y=4});
+Piece Pw_1 (piece_type::PAWN, true, false, {.x=1, .y=0},{.x=1, .y=0});
+Piece Pw_2 (piece_type::PAWN, true, false, {.x=1, .y=1},{.x=1, .y=1});
+Piece Pw_3 (piece_type::PAWN, true, false, {.x=1, .y=2},{.x=1, .y=2});
+Piece Pw_4 (piece_type::PAWN, true, false, {.x=1, .y=3},{.x=1, .y=3});
+Piece Pw_5 (piece_type::PAWN, true, false, {.x=1, .y=4},{.x=1, .y=4});
+Piece Pw_6 (piece_type::PAWN, true, false, {.x=1, .y=5},{.x=1, .y=5});
+Piece Pw_7 (piece_type::PAWN, true, false, {.x=1, .y=6},{.x=1, .y=6});
+Piece Pw_8 (piece_type::PAWN, true, false, {.x=1, .y=7},{.x=1, .y=7});
+Piece Pb_1 (piece_type::PAWN, false, false, {.x=6, .y=0},{.x=6, .y=0});
+Piece Pb_2 (piece_type::PAWN, false, false, {.x=6, .y=1},{.x=6, .y=1});
+Piece Pb_3 (piece_type::PAWN, false, false, {.x=6, .y=2},{.x=6, .y=2});
+Piece Pb_4 (piece_type::PAWN, false, false, {.x=6, .y=3},{.x=6, .y=3});
+Piece Pb_5 (piece_type::PAWN, false, false, {.x=6, .y=4},{.x=6, .y=4});
+Piece Pb_6 (piece_type::PAWN, false, false, {.x=6, .y=5},{.x=6, .y=5});
+Piece Pb_7 (piece_type::PAWN, false, false, {.x=6, .y=6},{.x=6, .y=6});
+Piece Pb_8 (piece_type::PAWN, false, false, {.x=6, .y=7},{.x=6, .y=7});
+Piece Rw_1 (piece_type::ROOK, true, false, {.x=0, .y=0},{.x=0, .y=0});
+Piece Rw_2 (piece_type::ROOK, true, false, {.x=0, .y=7},{.x=0, .y=7});
+Piece Nw_1 (piece_type::KNIGHT, true, false, {.x=0, .y=1},{.x=0, .y=1});
+Piece Nw_2 (piece_type::KNIGHT, true, false, {.x=0, .y=6},{.x=0, .y=6});
+Piece Bw_1 (piece_type::BISHOP, true, false, {.x=0, .y=2},{.x=0, .y=2});
+Piece Bw_2 (piece_type::BISHOP, true, false, {.x=0, .y=5},{.x=0, .y=5});
+Piece Qw (piece_type::QUEEN, true, false, {.x=0, .y=3},{.x=0, .y=3});
+Piece Kw (piece_type::KING, true, false, {.x=0, .y=4},{.x=0, .y=4});
+Piece Rb_1 (piece_type::ROOK, false, false, {.x=7, .y=0},{.x=7, .y=0});
+Piece Rb_2 (piece_type::ROOK, false, false, {.x=7, .y=7},{.x=7, .y=7});
+Piece Nb_1 (piece_type::KNIGHT, false, false, {.x=7, .y=1},{.x=7, .y=1});
+Piece Nb_2 (piece_type::KNIGHT, false, false, {.x=7, .y=6},{.x=7, .y=6});
+Piece Bb_1 (piece_type::BISHOP, false, false, {.x=7, .y=2},{.x=7, .y=2});
+Piece Bb_2 (piece_type::BISHOP, false, false, {.x=7, .y=5},{.x=7, .y=5});
+Piece Qb (piece_type::QUEEN, false, false, {.x=7, .y=3},{.x=7, .y=3});
+Piece Kb (piece_type::KING, false, false, {.x=7, .y=4},{.x=7, .y=4});
 std::vector<Piece> list_pieces {Pw_1, Pw_2,Pw_3, Pw_4,Pw_5, Pw_6,Pw_7, Pw_8,
                             Pb_1, Pb_2,Pb_3, Pb_4, Pb_5, Pb_6, Pb_7, Pb_8,
                             Rw_1, Rw_2,Nw_1, Nw_2,Bw_1, Bw_2,Qw, Kw,
@@ -76,7 +62,9 @@ template <typename T, typename Q>
 bool Board::is_in (const T& value, const std::vector<Q>& list) const{ //function retruning true if a value is in a list
     size_t size {list.size()};
     for (int i{0};i<size;i++){
-        if (value == list[i]){return true;}
+        if constexpr (std::is_same_v<T, Piece>){
+            if (operateur_egal_piece(list[i],value)){return true;}}
+        else{if (value == list[i]){return true;}}
     }
     return false;
 }
@@ -94,7 +82,7 @@ std::optional<piece_type> Board::get_type(const int& line, const int& colum) con
 const char * Board::get_label(const int& line,const int& colum) const{//function translating the char in the table of pieces positions (m_lines) to a string readable by the button (to label)
     Piece* piece = m_lines[line][colum];
 
-    if (!piece) {return " ";}
+    if (!piece || piece->is_captured) {return " ";}
 
     char c {};
     switch (piece->type) {
@@ -123,13 +111,9 @@ bool Board::get_piece_color (const int& line,const int& colum) const{ //fonction
 }//return true for white, false for black
 
 std::vector <Position> Board::get_squares_possible(const Position& position) const{ // temporary function giving to some pieces a list of position possible
-    const char* label = get_label(position.x, position.y);
-
-    if (strcmp(label, "P") == 0) return PAWN_move;
-    else if (strcmp(label, "R") == 0) return rOoK_move;
-    else if (strcmp(label, "p") == 0) return pawn_move;
-    else if (strcmp(label, "r") == 0) return rOoK_move;
-    else return zero;
+    Piece* piece = m_lines[position.x][position.y];
+    if (!piece) return zero; // return zero
+    return piece->get_moves();
 }
 
 bool Board::square_colored(const std::vector<Position>& squares, const Position& square) const {//verify if the square is in the list of position where the piece can be moved
@@ -147,15 +131,32 @@ bool Board::square_colored(const std::vector<Position>& squares, const Position&
 //     std::cout << m_lines[0][0] << "  "<< m_lines[0][1] << "  "<< m_lines[0][2] << "  "<< m_lines[0][3] << "  "<< m_lines[0][4] << "  "<< m_lines[0][5] << "  "<< m_lines[0][6] << "  "<< m_lines[0][7] << "\n";
 // }
 
+void Board::charge_lines (){ //function making the m_lines on fonction of the pieces current position
+    std::array<std::array<Piece*,8>,8> new_lines = {};
+    for (Piece& piece : list_pieces){
+        if (piece.is_captured) continue;
+            new_lines[piece.current_position.x][piece.current_position.y] = &piece;
+    }
+    m_lines = new_lines;
+}
+
 void Board::updates_lines(const Position& start, const Position& end){//update m_lines when a piece is moved
     bool can_be_moved = square_colored(get_squares_possible(start), end);
-    if (m_lines[start.x][start.y] != nullptr && m_lines[end.x][end.y] == nullptr && can_be_moved){
-        m_lines[end.x][end.y] = m_lines[start.x][start.y];
-        m_lines[start.x][start.y] = nullptr;
-        
+    if (m_lines[start.x][start.y] != nullptr && can_be_moved){
+        if (m_lines[end.x][end.y] != nullptr) {
+            if (m_lines[end.x][end.y]->is_white == m_lines[start.x][start.y]->is_white){return;}
+                    
+                m_lines[end.x][end.y]->is_captured=true;}
+        }
+        m_lines[start.x][start.y]->current_position=end;
+        //m_lines[end.x][end.y] = m_lines[start.x][start.y];
+        //m_lines[start.x][start.y] = nullptr;
+
+        charge_lines();
+
         std::cout << "moved ! " <<"\n";
     }
-}
+
 
 void Board::transform_pawn(std::pair<Position,Position>& move){// WILL make apear a pop up to change the pawn
     std::vector<Position> edges { {.x=0,.y=0}, {.x=0,.y=1}, {.x=0,.y=2}, {.x=0,.y=3}, {.x=0,.y=4}, {.x=0,.y=5}, {.x=0,.y=6}, {.x=0,.y=7},
