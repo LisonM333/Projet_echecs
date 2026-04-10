@@ -3,16 +3,22 @@
 #include <iostream>
 #include <array>
 #include <string>
+#include "includes/types.hpp"
 #include "quick_imgui/quick_imgui.hpp"
 #include <vector>
 #include "./includes/pieces.hpp"
+#include "./includes/moves.hpp"
 
 
 //test pour la représenation des square possibles
 std::vector <Position> zero {};
 
+//gestion transform pawn
+bool pawn_transform_pending = false;
+Position transform_position;
 
-
+ImFont* ChessFont = nullptr;
+ImFont* OtherFont = nullptr;
 
 //temporary instancations of the pieces
 Piece Pw_1 (piece_type::PAWN, true, false, {.x=1, .y=0},{.x=1, .y=0});
@@ -69,6 +75,14 @@ bool Board::is_in (const T& value, const std::vector<Q>& list) const{ //function
     return false;
 }
 
+std::vector<Position> Board::positions_taken () const {
+    std::vector<Position> pos_taken {};
+    for (auto piece : list_pieces){
+        if (!piece.is_captured) {pos_taken.push_back(piece.current_position);}
+    }
+    return pos_taken;
+}
+
 std::optional<piece_type> Board::get_type(const int& line, const int& colum) const { //function giving the type of a piece
     Piece* piece = m_lines[line][colum];
 
@@ -113,7 +127,8 @@ bool Board::get_piece_color (const int& line,const int& colum) const{ //fonction
 std::vector <Position> Board::get_squares_possible(const Position& position) const{ // temporary function giving to some pieces a list of position possible
     Piece* piece = m_lines[position.x][position.y];
     if (!piece) return zero; // return zero
-    return piece->get_moves();
+    std::vector <Position> moves = piece->get_moves();
+    return withdraw_collision( *piece, positions_taken(), moves);
 }
 
 bool Board::square_colored(const std::vector<Position>& squares, const Position& square) const {//verify if the square is in the list of position where the piece can be moved
@@ -158,14 +173,82 @@ void Board::updates_lines(const Position& start, const Position& end){//update m
 }
 
 
-void Board::transform_pawn(std::pair<Position,Position>& move){// WILL make apear a pop up to change the pawn
+void Board::will_transform(std::pair<Position,Position>& move){// WILL make apear a pop up to change the pawn
     std::vector<Position> edges { {.x=0,.y=0}, {.x=0,.y=1}, {.x=0,.y=2}, {.x=0,.y=3}, {.x=0,.y=4}, {.x=0,.y=5}, {.x=0,.y=6}, {.x=0,.y=7},
                                 {.x=7,.y=0}, {.x=7,.y=1}, {.x=7,.y=2}, {.x=7,.y=3}, {.x=7,.y=4}, {.x=7,.y=5}, {.x=7,.y=6}, {.x=7,.y=7}};
     if (m_lines[move.first.x][move.first.y]->type == piece_type::PAWN){
         if(is_in(move.second, edges)){
             std::cout<< "It's a pawn at the edge !" << '\n';
+            pawn_transform_pending = true;
+            transform_position = move.second;
+            
+        //     quick_imgui::loop(
+        //     "Chess",
+        //     {
+        //         .init = [&]() {
+        //         },
+        //         .loop =
+        //             [&]() {
+        //                 ImGui::ShowDemoWindow(); // This opens a window which shows tons of examples of what you can do with ImGui. You should check it out! Also, you can use the "Item Picker" in the top menu of that demo window: then click on any widget and it will show you the corresponding code directly in your IDE!
+        //                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
+        //                 ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.f, 0.f));
+        //                 ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
+        //                 ImGui::Begin("Pawn transform");
+        //                 ImGui::SetWindowFontScale(2.f);
+
+        //                     // colors gestion of the button
+        //                 ImGui::PushStyleColor(ImGuiCol_Button, {0.65f, 0.65f, 0.80f, 1.f});
+        //                 ImGui::PushStyleColor(ImGuiCol_Text, {1.f, 0.f, 0.f,1.f});
+
+        //                 //create button
+        //                 ImGui::PushID(1);
+        //                 if (ImGui::Button("Queen", ImVec2{100.f, 100.f})){
+        //                     //show square name in terminal
+        //                     std::cout << "Wild queen appeared !" << std::endl;
+        //                 }
+        //                 ImGui::SameLine();
+        //                 //create button
+        //                 ImGui::PushID(2);
+        //                 if (ImGui::Button("Bishop", ImVec2{100.f, 100.f})){
+        //                     //show square name in terminal
+        //                     std::cout << "Wild bishop appeared !" << std::endl;
+        //                 }
+        //                 ImGui::SameLine();
+        //                 //create button
+        //                 ImGui::PushID(3);
+        //                 if (ImGui::Button("Knight", ImVec2{100.f, 100.f})){
+        //                     //show square name in terminal
+        //                     std::cout << "Wild knight appeared !" << std::endl;
+        //                 }
+        //                 ImGui::SameLine();
+        //                 //create button
+        //                 ImGui::PushID(4);
+        //                 if (ImGui::Button("Rook", ImVec2{100.f, 100.f})){
+        //                     //show square name in terminal
+        //                     std::cout << "Wild rook appeared !" << std::endl;
+        //                 }
+
+        //                 ImGui::PopID();
+        //                 ImGui::PopStyleColor();
+        //                 ImGui::PopStyleColor();
+
+        //                 ImGui::End();
+        //                 ImGui::PopStyleVar(3);
+        //             },
+        //     }
+
+        // );
         }
     }
+}
+
+void Board::transform(piece_type type)
+{
+    Piece* p = m_lines[transform_position.x][transform_position.y];
+    if (p) {
+        p->type = type;
+    }
+    pawn_transform_pending = false;
 }
 
 void Board::move_gestion(std::pair<Position, Position>& move, std::vector<Position>& list){//gestion of the moves in general
@@ -182,7 +265,7 @@ void Board::move_gestion(std::pair<Position, Position>& move, std::vector<Positi
 
     //if the piece is selected and is final position too, m-lines is update
     if (move.first.x != 8 && move.second.x != 8){
-        transform_pawn(move);
+        will_transform(move);
         updates_lines(move.first, move.second);
         move = {{.x=8,.y=8},{.x=8,.y=8}};
         list = zero;
@@ -236,17 +319,36 @@ void Board::board_representation (){ //function generating the visual of the boa
             "Chess",
             {
                 .init = [&]() {
+                        ImGuiIO& io = ImGui::GetIO();
+
+                        ChessFont = io.Fonts->AddFontFromFileTTF(
+                            "assets/font/chess_font/Chessfont-Regular.ttf",
+                            90.0f
+                        );
+
+                        OtherFont = io.Fonts->AddFontFromFileTTF(
+                            "assets/font/Nunito/static/Nunito-Regular.ttf",
+                            90.0f
+                        );
+
+                        IM_ASSERT(ChessFont != nullptr);
+                        IM_ASSERT(OtherFont != nullptr);
+
+                        //ImGui_ImplOpenGL3_CreateFontsTexture();
+                                        
                 },
                 .loop =
                     [&]() {
+                        ImGui::PushFont(OtherFont);
                         ImGui::ShowDemoWindow(); // This opens a window which shows tons of examples of what you can do with ImGui. You should check it out! Also, you can use the "Item Picker" in the top menu of that demo window: then click on any widget and it will show you the corresponding code directly in your IDE!
+                        ImGui::PopFont();
                         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
                         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.f, 0.f));
                         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
+                        ImGui::PushFont(OtherFont);
                         ImGui::Begin("Board");
-                        ImGui::SetWindowFontScale(5.f);
+                        //ImGui::SetWindowFontScale(5.f);
 
-                        
                         
                         for (int i {4}; i>0; i--){
 
@@ -264,7 +366,9 @@ void Board::board_representation (){ //function generating the visual of the boa
                                 colo_piece = (get_piece_color(line, colum))?white_piece :black_piece;
 
                                 //visual part
+                                ImGui::PushFont(ChessFont);
                                 square_representation(line, colum, label, colo_case, colo_piece,selected);
+                                ImGui::PopFont();
 
                                 //move gestion
                                 if (selected){
@@ -286,7 +390,9 @@ void Board::board_representation (){ //function generating the visual of the boa
                                 colo_case = (square_colored( list_of_possible_move, Position{.x=line, .y=colum}))? red_cases :black_cases; 
                                 colo_piece = (get_piece_color(line, colum))?white_piece :black_piece;
 
+                                ImGui::PushFont(ChessFont);
                                 square_representation(line, colum, label, colo_case, colo_piece,selected);
+                                ImGui::PopFont();
 
                                 if (selected){
                                     selected =false;
@@ -310,7 +416,9 @@ void Board::board_representation (){ //function generating the visual of the boa
                                 colo_case = (square_colored( list_of_possible_move, Position{.x=line, .y=colum}))? red_cases :black_cases;
                                 colo_piece = (get_piece_color(line, colum))?white_piece :black_piece;
 
+                                ImGui::PushFont(ChessFont);
                                 square_representation(line, colum, label, colo_case, colo_piece,selected);
+                                ImGui::PopFont();
 
                                 if (selected){
                                     selected =false;
@@ -329,7 +437,9 @@ void Board::board_representation (){ //function generating the visual of the boa
                                 colo_case = (square_colored( list_of_possible_move, Position{.x=line, .y=colum}))? red_cases :white_cases;
                                 colo_piece = (get_piece_color(line, colum))?white_piece :black_piece;
 
+                                ImGui::PushFont(ChessFont);
                                 square_representation(line, colum, label, colo_case, colo_piece,selected);
+                                ImGui::PopFont();
 
                                 if (selected){
                                     selected =false;
@@ -341,10 +451,59 @@ void Board::board_representation (){ //function generating the visual of the boa
                             }
                             ImGui::NewLine();
                         }
+                        
 
                         move_gestion(move, list_of_possible_move);
 
+                        if (pawn_transform_pending)
+                        {
+                        ImGui::Begin("Transform");
+                        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1.f, 0.f));
+                        //ImGui::SetWindowFontScale(4.f);
+                        ImGui::PushStyleColor(ImGuiCol_Button, {1.f, 1.f, 1.f, 1.f});
+                        ImGui::PushStyleColor(ImGuiCol_Text, {1.f, 0.f, 0.f,1.f});
+                        //create button
+                        ImGui::PushID(1);
+                        if (ImGui::Button("Queen", ImVec2{200.f, 100.f})){
+                                transform(piece_type::QUEEN);
+                                std::cout << "Wild queen appeared !" << '\n';
+                        }
+                        ImGui::PopID();
+                        ImGui::SameLine();
+                        //create button
+                        ImGui::PushID(2);
+                        if (ImGui::Button("Bishop", ImVec2{200.f, 100.f})){
+                            transform(piece_type::BISHOP);
+                            std::cout << "Wild bishop appeared !" << '\n';
+                        }
+                        ImGui::PopID();
+                        ImGui::SameLine();
+                        //create button
+                        ImGui::PushID(3);
+                        if (ImGui::Button("Knight", ImVec2{200.f, 100.f})){
+                            transform(piece_type::KNIGHT);
+                            std::cout << "Wild knight appeared !" << '\n';
+                        }
+                        ImGui::PopID();
+                        ImGui::SameLine();
+                        //create button
+                        ImGui::PushID(4);
+                        if (ImGui::Button("Rook", ImVec2{200.f, 100.f})){
+                            transform(piece_type::ROOK);
+                            std::cout << "Wild rook appeared !" << '\n';
+                        }
+
+                        ImGui::PopID();
+                        ImGui::PopStyleColor();
+                        ImGui::PopStyleColor();
+
+                        ImGui::PopStyleVar();
                         ImGui::End();
+                        }
+
+                        
+                        ImGui::End();
+                        ImGui::PopFont();
                         ImGui::PopStyleVar(3);
                     },
             }

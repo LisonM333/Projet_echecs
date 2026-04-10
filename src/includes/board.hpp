@@ -4,6 +4,8 @@
 #include <vector>
 #include <optional>
 #include "./includes/pieces.hpp"
+#include "./includes/moves.hpp"
+
 
 class Board {
 
@@ -27,11 +29,13 @@ class Board {
     bool square_is_empty(const Position& square) const {if (square.x != 8){return (m_lines[square.x][square.y]== nullptr);} else {return false;}};
     template <typename T, typename Q>
     bool is_in(const T& value, const std::vector<Q>& list) const; // T and Q are different only for the case of the comparaison between char* and string
+    std::vector<Position> positions_taken ()const;
 
     std::vector<Position> get_squares_possible(const Position& position) const; // temporary function to test
     void                  updates_lines(const Position& start, const Position& end);
 
-    void transform_pawn(std::pair<Position, Position>& move);
+    void will_transform(std::pair<Position, Position>& move);
+    void transform(piece_type type);
 };
 
 inline bool operateur_egal_pos(const Position& a, const Position& b){return (a.x==b.x && a.y==b.y);};
