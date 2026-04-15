@@ -1,7 +1,7 @@
-﻿.cache
-bin
-build/**
-.vscode
+build/
+bin/
 
-CMakePresets.json
-out
+.vscode/
+
+poubicode.md
+.github

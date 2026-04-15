@@ -1,18 +1,10 @@
-# ## -----------------------------------------------------------------------
-# ##
-# ## If you want to learn CMake:
-# ## https://julesfouchy.github.io/Learn--Clean-Code-With-Cpp/lessons/cmake/
-# ##
-# ## If you want to see how to add libraries to your project:
-# ## https://julesfouchy.github.io/Learn--Clean-Code-With-Cpp/lessons/use-libraries/#how-to
-# ##
-# ## -----------------------------------------------------------------------
-
 cmake_minimum_required(VERSION 3.20)
+cmake_policy(SET CMP0072 NEW)
 
-# You can set the name of your project here
-project(ImGuiTemplate)
-add_executable(${PROJECT_NAME})
+project(Chessimac18)
+
+file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS src/*)
+add_executable(${PROJECT_NAME} ${MY_SOURCES})
 
 # Choose your C++ version
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
@@ -27,7 +19,7 @@ else()
     # target_compile_options(${PROJECT_NAME} PRIVATE -Werror -Wall -Wextra -Wpedantic -pedantic-errors -Wimplicit-fallthrough)
 endif()
 
-# Set the folder where the executable is created
+# Set the folder where the executables are created
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
@@ -35,11 +27,14 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_EXTENSIONS OFF)
 
-# Add all the source files
+    # Add all the source files
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS src/*)
 target_sources(${PROJECT_NAME} PRIVATE ${MY_SOURCES})
-target_include_directories(${PROJECT_NAME} PRIVATE src)
+target_include_directories(${PROJECT_NAME} PRIVATE src/includes)
 
-# Add quick-imgui library
-add_subdirectory(lib/quick_imgui)
-target_link_libraries(${PROJECT_NAME} PRIVATE quick_imgui::quick_imgui)
+# Include glimac
+add_subdirectory(lib/glimac)
+target_link_libraries(${PROJECT_NAME} PRIVATE glimac)
+
+include(CmakeUtils/files_and_folders.cmake)
+Cool__target_copy_folder(${PROJECT_NAME} "assets")
