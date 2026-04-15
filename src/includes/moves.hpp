@@ -7,6 +7,9 @@
 // apply relative moves to an absolute position on the board
 std::vector<Position> apply_relative_moves(const std::vector<Position>& relative_moves, const Position& position);
 
+// withdraw from relatives moves applied the collisions
+std::vector<Position> withdraw_collision(const Piece& moved, const std::vector<Position>& board, const std::vector<Position>& relative_moves_applied );
+
 // get relative moves for each type
 std::vector<Position> get_pawn_relative_moves();
 std::vector<Position> get_knight_relative_moves();
