@@ -10,6 +10,7 @@ enum class Law : uint8_t {
 double generate();
 // std::vector<double> generate_with_law(Law const& law, size_t nb_iterations);
 
+std::vector<double> use_uniform_law(size_t nb_iterations, double min, double max);
 std::vector<double> use_exponential_law(size_t nb_iterations, double lambda);
 std::vector<double> use_bernoulli_law(size_t nb_iterations, double probability_of_one);
 std::vector<double> use_binomial_law(size_t nb_iterations, size_t nb_bernoulli_iterations, double probability_of_one);

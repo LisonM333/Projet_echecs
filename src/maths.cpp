@@ -101,6 +101,29 @@ std::string visualization(const std::vector<double>& data)
 
 // TODO : Error handling (check warnings)
 
+
+//////////////////////
+// Uniform law  //
+//////////////////////
+
+static double generate_with_uniform_law(double min, double max)
+{
+    double u{generate_uniform_double()};
+    return min + u * (max - min);
+
+}
+
+std::vector<double> use_uniform_law(size_t nb_iterations, double min, double max)
+{
+    std::vector<double> generated_values{};
+    generated_values.reserve(nb_iterations);
+    for (size_t i{0}; i < nb_iterations; i++)
+    {
+        generated_values.push_back(generate_with_uniform_law(min, max));
+    }
+    return generated_values;
+}
+
 //////////////////////
 // Exponential law  //
 //////////////////////
@@ -108,18 +131,15 @@ std::string visualization(const std::vector<double>& data)
 static double generate_with_exponential_law(double lambda)
 {
     double u{generate_uniform_double()};
-    // warning : lambda must be =/= 0
+
     return -1 * std::log(1 - u) / lambda;
 }
 
 std::vector<double> use_exponential_law(size_t nb_iterations, double lambda)
 {
-    if (lambda <= 0)
-    {
-        return {};
-    }
     std::vector<double> generated_values{};
     generated_values.reserve(nb_iterations);
+    if (lambda <= 0) {return {};}
     for (size_t i{0}; i < nb_iterations; i++)
     {
         generated_values.push_back(generate_with_exponential_law(lambda));
@@ -230,3 +250,79 @@ std::vector<double> use_geometrical_law(size_t nb_iterations, double p)
     }
     return generated_values;
 }
+
+/////////////////
+// Poisson law //
+/////////////////
+
+template<typename T>
+static T factoriel(T n)
+{
+    if (n == 0 || n == 1)
+    {return 1;}
+    return n * factoriel(n - 1);
+}
+
+static double generate_with_poisson_law(double lambda)
+{
+    double u{generate_uniform_double()};
+
+    return std::pow(lambda, u) * std::exp(-lambda) / factoriel(u);
+}
+
+std::vector<double> use_poisson_law(size_t nb_iterations, double lambda)
+{
+    std::vector<double> generated_values{};
+    generated_values.reserve(nb_iterations);
+    for (size_t i{0}; i < nb_iterations; i++)
+    {
+        generated_values.push_back(generate_with_poisson_law(lambda));
+    }
+    return generated_values;
+}
+
+
+////////////////////
+// Gaussienne law //
+////////////////////
+
+static double generate_with_Gaussienne_law(double moyenne, double ecart_type)
+{
+    double u{generate_uniform_double()};
+    const double pi = 3.14159265358979323846;
+    return (1.0 / (ecart_type * std::sqrt(2.0 * pi))) *
+           std::exp(-std::pow(u - moyenne, 2) / (2.0 * std::pow(ecart_type, 2)));
+}
+
+std::vector<double> use_Gaussienne_law(size_t nb_iterations, double moyenne, double ecart_type)
+{
+    std::vector<double> generated_values{};
+    generated_values.reserve(nb_iterations);
+
+    for (size_t i{0}; i < nb_iterations; i++)
+    {
+        generated_values.push_back(generate_with_Gaussienne_law(moyenne, ecart_type));
+    }
+    return generated_values;
+}
+
+////////////////////////
+// Hypergeometric law //
+////////////////////////
+
+static double combinaison(int n, int k) {
+    if (k < 0 || k > n) return 0.0;
+    if (k == 0 || k == n) return 1.0;
+    double res = 1.0;
+    for (int i = 1; i <= k; ++i) {
+        res *= (n - k + i);
+        res /= i;
+    }
+    return res;
+}
+
+static double generate_with_Hypergeometric_law(int N, int K, int n)
+{
+//à faire
+}
+
