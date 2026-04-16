@@ -7,13 +7,21 @@
 #include "./includes/moves.hpp"
 
 
+
 class Board {
 
     private :
     std::array<std::array<Piece*,8>,8> m_lines = {};
-
+    std::vector<Piece> m_list_piece = {};
 
     public:
+    ImFont* m_ChessFont = nullptr;
+    ImFont* m_OtherFont = nullptr;
+
+    Board(std::vector<Piece>& list_piece);
+    void set_fonts(ImFont* chess, ImFont* other);
+    void reset_piece(const std::vector<Piece>& pieces);
+
     //void show_lines() const;
     void charge_lines ();
 
@@ -31,7 +39,7 @@ class Board {
     bool is_in(const T& value, const std::vector<Q>& list) const; // T and Q are different only for the case of the comparaison between char* and string
     std::vector<Position> positions_taken ()const;
 
-    std::vector<Position> get_squares_possible(const Position& position) const; // temporary function to test
+    std::vector<Position> get_squares_possible(const Position& position) const;
     void                  updates_lines(const Position& start, const Position& end);
 
     void will_transform(std::pair<Position, Position>& move);

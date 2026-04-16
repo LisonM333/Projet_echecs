@@ -9,6 +9,17 @@
 #include "./includes/pieces.hpp"
 #include "./includes/moves.hpp"
 
+Board::Board(std::vector<Piece>& list_piece) : m_list_piece(list_piece) {};
+void Board::set_fonts(ImFont* chess, ImFont* other)
+{
+    m_ChessFont = chess;
+    m_OtherFont = other;
+}
+void Board::reset_piece(const std::vector<Piece>& pieces)
+{
+    m_list_piece = pieces;
+    classic_start();
+}
 
 //test pour la représenation des square possibles
 std::vector <Position> zero {};
@@ -17,49 +28,10 @@ std::vector <Position> zero {};
 bool pawn_transform_pending = false;
 Position transform_position;
 
-ImFont* ChessFont = nullptr;
-ImFont* OtherFont = nullptr;
-
-//temporary instancations of the pieces
-Piece Pw_1 (piece_type::PAWN, true, false, {.x=1, .y=0},{.x=1, .y=0});
-Piece Pw_2 (piece_type::PAWN, true, false, {.x=1, .y=1},{.x=1, .y=1});
-Piece Pw_3 (piece_type::PAWN, true, false, {.x=1, .y=2},{.x=1, .y=2});
-Piece Pw_4 (piece_type::PAWN, true, false, {.x=1, .y=3},{.x=1, .y=3});
-Piece Pw_5 (piece_type::PAWN, true, false, {.x=1, .y=4},{.x=1, .y=4});
-Piece Pw_6 (piece_type::PAWN, true, false, {.x=1, .y=5},{.x=1, .y=5});
-Piece Pw_7 (piece_type::PAWN, true, false, {.x=1, .y=6},{.x=1, .y=6});
-Piece Pw_8 (piece_type::PAWN, true, false, {.x=1, .y=7},{.x=1, .y=7});
-Piece Pb_1 (piece_type::PAWN, false, false, {.x=6, .y=0},{.x=6, .y=0});
-Piece Pb_2 (piece_type::PAWN, false, false, {.x=6, .y=1},{.x=6, .y=1});
-Piece Pb_3 (piece_type::PAWN, false, false, {.x=6, .y=2},{.x=6, .y=2});
-Piece Pb_4 (piece_type::PAWN, false, false, {.x=6, .y=3},{.x=6, .y=3});
-Piece Pb_5 (piece_type::PAWN, false, false, {.x=6, .y=4},{.x=6, .y=4});
-Piece Pb_6 (piece_type::PAWN, false, false, {.x=6, .y=5},{.x=6, .y=5});
-Piece Pb_7 (piece_type::PAWN, false, false, {.x=6, .y=6},{.x=6, .y=6});
-Piece Pb_8 (piece_type::PAWN, false, false, {.x=6, .y=7},{.x=6, .y=7});
-Piece Rw_1 (piece_type::ROOK, true, false, {.x=0, .y=0},{.x=0, .y=0});
-Piece Rw_2 (piece_type::ROOK, true, false, {.x=0, .y=7},{.x=0, .y=7});
-Piece Nw_1 (piece_type::KNIGHT, true, false, {.x=0, .y=1},{.x=0, .y=1});
-Piece Nw_2 (piece_type::KNIGHT, true, false, {.x=0, .y=6},{.x=0, .y=6});
-Piece Bw_1 (piece_type::BISHOP, true, false, {.x=0, .y=2},{.x=0, .y=2});
-Piece Bw_2 (piece_type::BISHOP, true, false, {.x=0, .y=5},{.x=0, .y=5});
-Piece Qw (piece_type::QUEEN, true, false, {.x=0, .y=3},{.x=0, .y=3});
-Piece Kw (piece_type::KING, true, false, {.x=0, .y=4},{.x=0, .y=4});
-Piece Rb_1 (piece_type::ROOK, false, false, {.x=7, .y=0},{.x=7, .y=0});
-Piece Rb_2 (piece_type::ROOK, false, false, {.x=7, .y=7},{.x=7, .y=7});
-Piece Nb_1 (piece_type::KNIGHT, false, false, {.x=7, .y=1},{.x=7, .y=1});
-Piece Nb_2 (piece_type::KNIGHT, false, false, {.x=7, .y=6},{.x=7, .y=6});
-Piece Bb_1 (piece_type::BISHOP, false, false, {.x=7, .y=2},{.x=7, .y=2});
-Piece Bb_2 (piece_type::BISHOP, false, false, {.x=7, .y=5},{.x=7, .y=5});
-Piece Qb (piece_type::QUEEN, false, false, {.x=7, .y=3},{.x=7, .y=3});
-Piece Kb (piece_type::KING, false, false, {.x=7, .y=4},{.x=7, .y=4});
-std::vector<Piece> list_pieces {Pw_1, Pw_2,Pw_3, Pw_4,Pw_5, Pw_6,Pw_7, Pw_8,
-                            Pb_1, Pb_2,Pb_3, Pb_4, Pb_5, Pb_6, Pb_7, Pb_8,
-                            Rw_1, Rw_2,Nw_1, Nw_2,Bw_1, Bw_2,Qw, Kw,
-                            Rb_1, Rb_2,Nb_1, Nb_2, Bb_1, Bb_2, Qb, Kb};
-
-
-
+//board items
+std::pair<Position, Position> movement {{.x=8,.y=8},{.x=8,.y=8}}; //coord start and end of a piece
+std::vector<Position> list_of_possible_move = zero; 
+bool selected = false;//will indicate if a square is part of a move
 
 
 
@@ -77,7 +49,7 @@ bool Board::is_in (const T& value, const std::vector<Q>& list) const{ //function
 
 std::vector<Position> Board::positions_taken () const {
     std::vector<Position> pos_taken {};
-    for (auto piece : list_pieces){
+    for (auto piece : m_list_piece){
         if (!piece.is_captured) {pos_taken.push_back(piece.current_position);}
     }
     return pos_taken;
@@ -135,20 +107,9 @@ bool Board::square_colored(const std::vector<Position>& squares, const Position&
     return is_in(square, squares);
 }
 
-// void Board::show_lines ()const{ //temporary function to show the board in the terinal
-//     std::cout << m_lines[7][0] << "  "<< m_lines[7][1] << "  "<< m_lines[7][2] << "  "<< m_lines[7][3] << "  "<< m_lines[7][4] << "  "<< m_lines[7][5] << "  "<< m_lines[7][6] << "  "<< m_lines[7][7] << "\n";
-//     std::cout << m_lines[6][0] << "  "<< m_lines[6][1] << "  "<< m_lines[6][2] << "  "<< m_lines[6][3] << "  "<< m_lines[6][4] << "  "<< m_lines[6][5] << "  "<< m_lines[6][6] << "  "<< m_lines[6][7] << "\n";
-//     std::cout << m_lines[5][0] << "  "<< m_lines[5][1] << "  "<< m_lines[5][2] << "  "<< m_lines[5][3] << "  "<< m_lines[5][4] << "  "<< m_lines[5][5] << "  "<< m_lines[5][6] << "  "<< m_lines[5][7] << "\n";
-//     std::cout << m_lines[4][0] << "  "<< m_lines[4][1] << "  "<< m_lines[4][2] << "  "<< m_lines[4][3] << "  "<< m_lines[4][4] << "  "<< m_lines[4][5] << "  "<< m_lines[4][6] << "  "<< m_lines[4][7] << "\n";
-//     std::cout << m_lines[3][0] << "  "<< m_lines[3][1] << "  "<< m_lines[3][2] << "  "<< m_lines[3][3] << "  "<< m_lines[3][4] << "  "<< m_lines[3][5] << "  "<< m_lines[3][6] << "  "<< m_lines[3][7] << "\n";
-//     std::cout << m_lines[2][0] << "  "<< m_lines[2][1] << "  "<< m_lines[2][2] << "  "<< m_lines[2][3] << "  "<< m_lines[2][4] << "  "<< m_lines[2][5] << "  "<< m_lines[2][6] << "  "<< m_lines[2][7] << "\n";
-//     std::cout << m_lines[1][0] << "  "<< m_lines[1][1] << "  "<< m_lines[1][2] << "  "<< m_lines[1][3] << "  "<< m_lines[1][4] << "  "<< m_lines[1][5] << "  "<< m_lines[1][6] << "  "<< m_lines[1][7] << "\n";
-//     std::cout << m_lines[0][0] << "  "<< m_lines[0][1] << "  "<< m_lines[0][2] << "  "<< m_lines[0][3] << "  "<< m_lines[0][4] << "  "<< m_lines[0][5] << "  "<< m_lines[0][6] << "  "<< m_lines[0][7] << "\n";
-// }
-
 void Board::charge_lines (){ //function making the m_lines on fonction of the pieces current position
     std::array<std::array<Piece*,8>,8> new_lines = {};
-    for (Piece& piece : list_pieces){
+    for (Piece& piece : m_list_piece){
         if (piece.is_captured) continue;
             new_lines[piece.current_position.x][piece.current_position.y] = &piece;
     }
@@ -164,8 +125,6 @@ void Board::updates_lines(const Position& start, const Position& end){//update m
                 m_lines[end.x][end.y]->is_captured=true;
         }
         m_lines[start.x][start.y]->current_position=end;
-        //m_lines[end.x][end.y] = m_lines[start.x][start.y];
-        //m_lines[start.x][start.y] = nullptr;
     }
     charge_lines();
 
@@ -181,63 +140,6 @@ void Board::will_transform(std::pair<Position,Position>& move){// WILL make apea
             std::cout<< "It's a pawn at the edge !" << '\n';
             pawn_transform_pending = true;
             transform_position = move.second;
-            
-        //     quick_imgui::loop(
-        //     "Chess",
-        //     {
-        //         .init = [&]() {
-        //         },
-        //         .loop =
-        //             [&]() {
-        //                 ImGui::ShowDemoWindow(); // This opens a window which shows tons of examples of what you can do with ImGui. You should check it out! Also, you can use the "Item Picker" in the top menu of that demo window: then click on any widget and it will show you the corresponding code directly in your IDE!
-        //                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
-        //                 ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.f, 0.f));
-        //                 ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
-        //                 ImGui::Begin("Pawn transform");
-        //                 ImGui::SetWindowFontScale(2.f);
-
-        //                     // colors gestion of the button
-        //                 ImGui::PushStyleColor(ImGuiCol_Button, {0.65f, 0.65f, 0.80f, 1.f});
-        //                 ImGui::PushStyleColor(ImGuiCol_Text, {1.f, 0.f, 0.f,1.f});
-
-        //                 //create button
-        //                 ImGui::PushID(1);
-        //                 if (ImGui::Button("Queen", ImVec2{100.f, 100.f})){
-        //                     //show square name in terminal
-        //                     std::cout << "Wild queen appeared !" << std::endl;
-        //                 }
-        //                 ImGui::SameLine();
-        //                 //create button
-        //                 ImGui::PushID(2);
-        //                 if (ImGui::Button("Bishop", ImVec2{100.f, 100.f})){
-        //                     //show square name in terminal
-        //                     std::cout << "Wild bishop appeared !" << std::endl;
-        //                 }
-        //                 ImGui::SameLine();
-        //                 //create button
-        //                 ImGui::PushID(3);
-        //                 if (ImGui::Button("Knight", ImVec2{100.f, 100.f})){
-        //                     //show square name in terminal
-        //                     std::cout << "Wild knight appeared !" << std::endl;
-        //                 }
-        //                 ImGui::SameLine();
-        //                 //create button
-        //                 ImGui::PushID(4);
-        //                 if (ImGui::Button("Rook", ImVec2{100.f, 100.f})){
-        //                     //show square name in terminal
-        //                     std::cout << "Wild rook appeared !" << std::endl;
-        //                 }
-
-        //                 ImGui::PopID();
-        //                 ImGui::PopStyleColor();
-        //                 ImGui::PopStyleColor();
-
-        //                 ImGui::End();
-        //                 ImGui::PopStyleVar(3);
-        //             },
-        //     }
-
-        // );
         }
     }
 }
@@ -301,9 +203,6 @@ void Board::board_representation (){ //function generating the visual of the boa
     int line {}; //i
     int colum {}; //j
     const char * label{}; //name of piece
-    std::pair<Position, Position> move {{.x=8,.y=8},{.x=8,.y=8}}; //coord start and end of a piece
-    std::vector<Position> list_of_possible_move = zero; 
-    bool selected = false;//will indicate if a square is part of a move
 
     ImVec4 colo_case {};
     ImVec4 white_cases ={0.65f, 0.65f, 0.80f, 1.f};                  
@@ -315,207 +214,172 @@ void Board::board_representation (){ //function generating the visual of the boa
     ImVec4 black_piece ={0.f, 0.f, 0.f, 1.f};       
     
 
-        quick_imgui::loop(
-            "Chess",
-            {
-                .init = [&]() {
-                        ImGuiIO& io = ImGui::GetIO();
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.f, 0.f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
+    ImGui::Begin("Board");                        
+    for (int i {4}; i>0; i--){
 
-                        ChessFont = io.Fonts->AddFontFromFileTTF(
-                            "assets/font/chess_font/Chessfont-Regular.ttf",
-                            90.0f
-                        );
+        for (int j {1}; j<5; j++){
 
-                        OtherFont = io.Fonts->AddFontFromFileTTF(
-                            "assets/font/Nunito/static/Nunito-Regular.ttf",
-                            90.0f
-                        );
+            //1
 
-                        IM_ASSERT(ChessFont != nullptr);
-                        IM_ASSERT(OtherFont != nullptr);
+            //values of line and colum
+            line = i*2-1;
+            colum = j*2-2;
 
-                        //ImGui_ImplOpenGL3_CreateFontsTexture();
-                                        
-                },
-                .loop =
-                    [&]() {
-                        ImGui::PushFont(OtherFont);
-                        ImGui::ShowDemoWindow(); // This opens a window which shows tons of examples of what you can do with ImGui. You should check it out! Also, you can use the "Item Picker" in the top menu of that demo window: then click on any widget and it will show you the corresponding code directly in your IDE!
-                        ImGui::PopFont();
-                        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
-                        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.f, 0.f));
-                        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
-                        ImGui::PushFont(OtherFont);
-                        ImGui::Begin("Board");
-                        //ImGui::SetWindowFontScale(5.f);
+            //gestion of colors
+            label =  get_label(line,colum);
+            colo_case = (square_colored( list_of_possible_move, Position{.x=line, .y=colum}))? red_cases :white_cases;
+            colo_piece = (get_piece_color(line, colum))?white_piece :black_piece;
 
-                        
-                        for (int i {4}; i>0; i--){
+            //visual part
+            ImGui::PushFont(m_ChessFont);
+            square_representation(line, colum, label, colo_case, colo_piece,selected);
+            ImGui::PopFont();
 
-                            for (int j {1}; j<5; j++){
+            //move gestion
+            if (selected){
+                selected = false;
+                if ( movement.first.x == 8){
+                    movement.first = {.x=line, .y=colum};
+                    
+                }
+                else {movement.second = {.x=line, .y=colum};}   
+            }
+            
 
-                                //1
+            //2
+            
+            line = i*2-1;
+            colum = j*2-1;
 
-                                //values of line and colum
-                                line = i*2-1;
-                                colum = j*2-2;
+            label =  get_label(line, colum);
+            colo_case = (square_colored( list_of_possible_move, Position{.x=line, .y=colum}))? red_cases :black_cases; 
+            colo_piece = (get_piece_color(line, colum))?white_piece :black_piece;
 
-                                //gestion of colors
-                                label =  get_label(line,colum);
-                                colo_case = (square_colored( list_of_possible_move, Position{.x=line, .y=colum}))? red_cases :white_cases;
-                                colo_piece = (get_piece_color(line, colum))?white_piece :black_piece;
+            ImGui::PushFont(m_ChessFont);
+            square_representation(line, colum, label, colo_case, colo_piece,selected);
+            ImGui::PopFont();
 
-                                //visual part
-                                ImGui::PushFont(ChessFont);
-                                square_representation(line, colum, label, colo_case, colo_piece,selected);
-                                ImGui::PopFont();
+            if (selected){
+                selected =false;
+                if ( movement.first.x == 8){
+                    movement.first = {.x=line, .y=colum};
+                }
+                else {movement.second = {.x=line, .y=colum};}
+            }
+        }
 
-                                //move gestion
-                                if (selected){
-                                    selected = false;
-                                    if ( move.first.x == 8){
-                                        move.first = {.x=line, .y=colum};
-                                        
-                                    }
-                                    else {move.second = {.x=line, .y=colum};}   
-                                }
-                              
+        ImGui::NewLine();
 
-                                //2
-                                
-                                line = i*2-1;
-                                colum = j*2-1;
+        for (int j {1}; j<5; j++){
+    
+            //3
 
-                                label =  get_label(line, colum);
-                                colo_case = (square_colored( list_of_possible_move, Position{.x=line, .y=colum}))? red_cases :black_cases; 
-                                colo_piece = (get_piece_color(line, colum))?white_piece :black_piece;
+            line = i*2-2;
+            colum = j*2-2;
 
-                                ImGui::PushFont(ChessFont);
-                                square_representation(line, colum, label, colo_case, colo_piece,selected);
-                                ImGui::PopFont();
+            label =  get_label(line,colum);
+            colo_case = (square_colored( list_of_possible_move, Position{.x=line, .y=colum}))? red_cases :black_cases;
+            colo_piece = (get_piece_color(line, colum))?white_piece :black_piece;
 
-                                if (selected){
-                                    selected =false;
-                                    if ( move.first.x == 8){
-                                        move.first = {.x=line, .y=colum};
-                                    }
-                                    else {move.second = {.x=line, .y=colum};}
-                                }
-                            }
+            ImGui::PushFont(m_ChessFont);
+            square_representation(line, colum, label, colo_case, colo_piece,selected);
+            ImGui::PopFont();
 
-                            ImGui::NewLine();
-
-                            for (int j {1}; j<5; j++){
-                        
-                                //3
-
-                                line = i*2-2;
-                                colum = j*2-2;
-
-                                label =  get_label(line,colum);
-                                colo_case = (square_colored( list_of_possible_move, Position{.x=line, .y=colum}))? red_cases :black_cases;
-                                colo_piece = (get_piece_color(line, colum))?white_piece :black_piece;
-
-                                ImGui::PushFont(ChessFont);
-                                square_representation(line, colum, label, colo_case, colo_piece,selected);
-                                ImGui::PopFont();
-
-                                if (selected){
-                                    selected =false;
-                                    if ( move.first.x == 8){
-                                        move.first = {.x=line, .y=colum};
-                                    }
-                                    else {move.second = {.x=line, .y=colum};}
-                                }
-
-                                //4
-                                
-                                line = i*2-2;
-                                colum = j*2-1;
-
-                                label =  get_label(line,colum);
-                                colo_case = (square_colored( list_of_possible_move, Position{.x=line, .y=colum}))? red_cases :white_cases;
-                                colo_piece = (get_piece_color(line, colum))?white_piece :black_piece;
-
-                                ImGui::PushFont(ChessFont);
-                                square_representation(line, colum, label, colo_case, colo_piece,selected);
-                                ImGui::PopFont();
-
-                                if (selected){
-                                    selected =false;
-                                    if ( move.first.x == 8){
-                                        move.first = {.x=line, .y=colum};
-                                    }
-                                    else {move.second = {.x=line, .y=colum};}
-                                }
-                            }
-                            ImGui::NewLine();
-                        }
-                        
-
-                        move_gestion(move, list_of_possible_move);
-
-                        if (pawn_transform_pending)
-                        {
-                        ImGui::Begin("Transform");
-                        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1.f, 0.f));
-                        //ImGui::SetWindowFontScale(4.f);
-                        ImGui::PushStyleColor(ImGuiCol_Button, {1.f, 1.f, 1.f, 1.f});
-                        ImGui::PushStyleColor(ImGuiCol_Text, {1.f, 0.f, 0.f,1.f});
-                        //create button
-                        ImGui::PushID(1);
-                        if (ImGui::Button("Queen", ImVec2{200.f, 100.f})){
-                                transform(piece_type::QUEEN);
-                                std::cout << "Wild queen appeared !" << '\n';
-                        }
-                        ImGui::PopID();
-                        ImGui::SameLine();
-                        //create button
-                        ImGui::PushID(2);
-                        if (ImGui::Button("Bishop", ImVec2{200.f, 100.f})){
-                            transform(piece_type::BISHOP);
-                            std::cout << "Wild bishop appeared !" << '\n';
-                        }
-                        ImGui::PopID();
-                        ImGui::SameLine();
-                        //create button
-                        ImGui::PushID(3);
-                        if (ImGui::Button("Knight", ImVec2{200.f, 100.f})){
-                            transform(piece_type::KNIGHT);
-                            std::cout << "Wild knight appeared !" << '\n';
-                        }
-                        ImGui::PopID();
-                        ImGui::SameLine();
-                        //create button
-                        ImGui::PushID(4);
-                        if (ImGui::Button("Rook", ImVec2{200.f, 100.f})){
-                            transform(piece_type::ROOK);
-                            std::cout << "Wild rook appeared !" << '\n';
-                        }
-
-                        ImGui::PopID();
-                        ImGui::PopStyleColor();
-                        ImGui::PopStyleColor();
-
-                        ImGui::PopStyleVar();
-                        ImGui::End();
-                        }
-
-                        
-                        ImGui::End();
-                        ImGui::PopFont();
-                        ImGui::PopStyleVar(3);
-                    },
+            if (selected){
+                selected =false;
+                if ( movement.first.x == 8){
+                    movement.first = {.x=line, .y=colum};
+                }
+                else {movement.second = {.x=line, .y=colum};}
             }
 
-        );
+            //4
+            
+            line = i*2-2;
+            colum = j*2-1;
 
+            label =  get_label(line,colum);
+            colo_case = (square_colored( list_of_possible_move, Position{.x=line, .y=colum}))? red_cases :white_cases;
+            colo_piece = (get_piece_color(line, colum))?white_piece :black_piece;
+
+            ImGui::PushFont(m_ChessFont);
+            square_representation(line, colum, label, colo_case, colo_piece,selected);
+            ImGui::PopFont();
+
+            if (selected){
+                selected =false;
+                if ( movement.first.x == 8){
+                    movement.first = {.x=line, .y=colum};
+                }
+                else {movement.second = {.x=line, .y=colum};}
+            }
+        }
+        ImGui::NewLine();
+    }
+    
+
+    move_gestion(movement, list_of_possible_move);
+
+    if (pawn_transform_pending)
+    {
+        ImGui::Begin("T");
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1.f, 0.f));
+        //ImGui::SetWindowFontScale(4.f);
+        ImGui::PushStyleColor(ImGuiCol_Button, {1.f, 1.f, 1.f, 1.f});
+        ImGui::PushStyleColor(ImGuiCol_Text, {1.f, 0.f, 0.f,1.f});
+        //create button
+        ImGui::PushID(1);
+        if (ImGui::Button("Q", ImVec2{200.f, 100.f})){
+                transform(piece_type::QUEEN);
+                std::cout << "Wild queen appeared !" << '\n';
+        }
+        ImGui::PopID();
+        ImGui::SameLine();
+        //create button
+        ImGui::PushID(2);
+        if (ImGui::Button("B", ImVec2{200.f, 100.f})){
+            transform(piece_type::BISHOP);
+            std::cout << "Wild bishop appeared !" << '\n';
+        }
+        ImGui::PopID();
+        ImGui::SameLine();
+        //create button
+        ImGui::PushID(3);
+        if (ImGui::Button("N", ImVec2{200.f, 100.f})){
+            transform(piece_type::KNIGHT);
+            std::cout << "Wild knight appeared !" << '\n';
+        }
+        ImGui::PopID();
+        ImGui::SameLine();
+        //create button
+        ImGui::PushID(4);
+        if (ImGui::Button("R", ImVec2{200.f, 100.f})){
+            transform(piece_type::ROOK);
+            std::cout << "Wild rook appeared !" << '\n';
+        }
+
+        ImGui::PopID();
+        ImGui::PopStyleColor();
+        ImGui::PopStyleColor();
+
+        ImGui::PopStyleVar();
+        ImGui::End();
+    }
+
+    
+    ImGui::End();
+    ImGui::PopStyleVar(3);
 }
 
 void Board::classic_start (){ //function making the m_lines when beginning a classic game
     m_lines ={};
-    for (Piece& piece : list_pieces){
+    for (Piece& piece : m_list_piece){
         m_lines[piece.initial_position.x][piece.initial_position.y] = &piece;
     }
 }
 
+// move (pion, piece de bord) -> lance la transformation ! 
+// le saut du pion
