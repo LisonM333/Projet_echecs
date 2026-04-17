@@ -1,6 +1,7 @@
 #include "mesh.hpp"
 #include "glimac/Geometry.hpp"
 #include "glimac/common.hpp"
+#include "includes/Mesh.hpp"
 
 // Mesh::Mesh(const std::vector<glimac::ShapeVertex>& vertices) : m_vertexCount(vertices.size())
 Mesh::Mesh(GLsizei const vertexCount, const glimac::ShapeVertex* vertices) : m_vertexCount(vertexCount)
@@ -35,7 +36,6 @@ Mesh::Mesh(GLsizei const vertexCount, const glimac::ShapeVertex* vertices) : m_v
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
     // Tell how to use data
-    // position
     glVertexAttribPointer(VERTEX_ATTR_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (GLvoid*)offsetof(glimac::ShapeVertex, position));
     glVertexAttribPointer(VERTEX_ATTR_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (GLvoid*)offsetof(glimac::ShapeVertex, normal));
     glVertexAttribPointer(VERTEX_ATTR_TEXCOORDS, 2, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (GLvoid*)offsetof(glimac::ShapeVertex, texCoords));
@@ -91,11 +91,13 @@ Mesh::Mesh(glimac::Geometry& obj) : m_indexCount(obj.getIndexCount())
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo); // bind ebo
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, obj.getIndexCount() * sizeof(unsigned int), obj.getIndexBuffer(), GL_STATIC_DRAW);
 
-    /* Debind VAO */
-    glBindVertexArray(0);
     // Unbind VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // unbind ebo
+
+    /* Debind VAO */
+    glBindVertexArray(0);
+
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // unbind ebo
 }
 
 Mesh::~Mesh()
@@ -118,4 +120,45 @@ void Mesh::draw() const
         glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(m_vertexCount));
     }
     glBindVertexArray(0);
+}
+
+size_t Mesh::getVertexCount() const
+{
+    return m_vertexCount;
+}
+
+size_t Mesh::getIndexCount() const
+{
+    return m_indexCount;
+}
+
+Mesh::Mesh(Mesh&& other) noexcept : m_vao(other.m_vao), m_vbo(other.m_vbo), m_ebo(other.m_ebo), m_indexCount(other.m_indexCount), m_vertexCount(other.m_vertexCount)
+{
+    other.m_vao = 0;
+    other.m_vbo = 0;
+    other.m_ebo = 0;
+}
+
+Mesh& Mesh::operator=(Mesh&& other) noexcept
+{
+    if (this == &other)
+    {
+        return *this;
+    }
+
+    glDeleteVertexArrays(1, &m_vao);
+    glDeleteBuffers(1, &m_vbo);
+    glDeleteBuffers(1, &m_ebo);
+
+    m_vao         = other.m_vao;
+    m_vbo         = other.m_vbo;
+    m_ebo         = other.m_ebo;
+    m_indexCount  = other.m_indexCount;
+    m_vertexCount = other.m_vertexCount;
+
+    other.m_vao = 0;
+    other.m_vbo = 0;
+    other.m_ebo = 0;
+
+    return *this;
 }

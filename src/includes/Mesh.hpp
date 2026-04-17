@@ -16,15 +16,18 @@ public:
 
     Mesh(const Mesh&)            = delete;
     Mesh& operator=(const Mesh&) = delete;
-    Mesh(Mesh&&)                 = default;
-    Mesh& operator=(Mesh&&)      = default;
+    Mesh(Mesh&& other) noexcept;
+    Mesh& operator=(Mesh&& other) noexcept;
+
+    size_t getVertexCount() const;
+    size_t getIndexCount() const;
 
     void draw() const;
 
 private:
-    GLuint  m_vao{};
-    GLuint  m_vbo{};
-    GLuint  m_ebo{};
+    GLuint m_vao{};
+    GLuint m_vbo{};
+    GLuint m_ebo{};
     size_t m_indexCount{};
-    size_t  m_vertexCount{};
+    size_t m_vertexCount{};
 };
