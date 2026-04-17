@@ -3,6 +3,7 @@
 #include <array>
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <iostream>
 #include <numeric>
 #include <random>
@@ -286,7 +287,7 @@ std::vector<double> use_poisson_law(size_t nb_iterations, double lambda)
 // Gaussienne law //
 ////////////////////
 
-static double generate_with_Gaussienne_law(double moyenne, double ecart_type)
+static double generate_with_gaussienne_law(double moyenne, double ecart_type)
 {
     double u{generate_uniform_double()};
     const double pi = 3.14159265358979323846;
@@ -294,14 +295,14 @@ static double generate_with_Gaussienne_law(double moyenne, double ecart_type)
            std::exp(-std::pow(u - moyenne, 2) / (2.0 * std::pow(ecart_type, 2)));
 }
 
-std::vector<double> use_Gaussienne_law(size_t nb_iterations, double moyenne, double ecart_type)
+std::vector<double> use_gaussienne_law(size_t nb_iterations, double moyenne, double ecart_type)
 {
     std::vector<double> generated_values{};
     generated_values.reserve(nb_iterations);
 
     for (size_t i{0}; i < nb_iterations; i++)
     {
-        generated_values.push_back(generate_with_Gaussienne_law(moyenne, ecart_type));
+        generated_values.push_back(generate_with_gaussienne_law(moyenne, ecart_type));
     }
     return generated_values;
 }
@@ -321,8 +322,30 @@ static double combinaison(int n, int k) {
     return res;
 }
 
-static double generate_with_Hypergeometric_law(int N, int K, int n)
+static int generate_with_hypergeometric_law(int N, int K, int n)
 {
-//à faire
+    double u = generate_uniform_double();
+    int succes = 0;
+    for (int i {0}; i< n; i++){
+        double p = (double)K / N;
+        double u = generate_uniform_double();
+
+        if (u < p) {
+            succes++;
+            K--;
+        }
+        N--;
+    }
+    return succes;  
 }
 
+std::vector<double> use_hypergeometrical_law(size_t nb_iterations, int N, int K, int n)
+{
+    std::vector<double> generated_values{};
+    generated_values.reserve(nb_iterations);
+    for (size_t i{0}; i < nb_iterations; i++)
+    {
+        generated_values.push_back(static_cast<double>(generate_with_hypergeometric_law(N, K, n)));
+    }
+    return generated_values;
+}
