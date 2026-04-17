@@ -1,7 +1,6 @@
 #include "mesh.hpp"
 #include "glimac/Geometry.hpp"
 #include "glimac/common.hpp"
-#include "includes/Mesh.hpp"
 
 // Mesh::Mesh(const std::vector<glimac::ShapeVertex>& vertices) : m_vertexCount(vertices.size())
 Mesh::Mesh(GLsizei const vertexCount, const glimac::ShapeVertex* vertices) : m_vertexCount(vertexCount)
@@ -47,7 +46,7 @@ Mesh::Mesh(GLsizei const vertexCount, const glimac::ShapeVertex* vertices) : m_v
     glBindVertexArray(0);
 }
 
-Mesh::Mesh(glimac::Geometry& obj) : m_indexCount(obj.getIndexCount())
+Mesh::Mesh(glimac::Geometry& obj) : m_indexCount(obj.getIndexCount()), m_vertexCount(obj.getVertexCount())
 {
     /* VBO */
     /* Create VBO */
@@ -98,6 +97,13 @@ Mesh::Mesh(glimac::Geometry& obj) : m_indexCount(obj.getIndexCount())
     glBindVertexArray(0);
 
     // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // unbind ebo
+
+    for (size_t i = 0; i < obj.getMeshCount(); ++i)
+    {
+        m_subMeshes.push_back(obj.getMeshBuffer()[i]);
+    }
+
+    m_materials = obj.getMaterials();
 }
 
 Mesh::~Mesh()
@@ -122,17 +128,7 @@ void Mesh::draw() const
     glBindVertexArray(0);
 }
 
-size_t Mesh::getVertexCount() const
-{
-    return m_vertexCount;
-}
-
-size_t Mesh::getIndexCount() const
-{
-    return m_indexCount;
-}
-
-Mesh::Mesh(Mesh&& other) noexcept : m_vao(other.m_vao), m_vbo(other.m_vbo), m_ebo(other.m_ebo), m_indexCount(other.m_indexCount), m_vertexCount(other.m_vertexCount)
+Mesh::Mesh(Mesh&& other) noexcept : m_vao(other.m_vao), m_vbo(other.m_vbo), m_ebo(other.m_ebo), m_indexCount(other.m_indexCount), m_vertexCount(other.m_vertexCount), m_subMeshes(std::move(other.m_subMeshes)), m_materials(std::move(other.m_materials))
 {
     other.m_vao = 0;
     other.m_vbo = 0;
@@ -155,6 +151,8 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept
     m_ebo         = other.m_ebo;
     m_indexCount  = other.m_indexCount;
     m_vertexCount = other.m_vertexCount;
+    m_subMeshes   = other.m_subMeshes;
+    m_materials   = other.m_materials;
 
     other.m_vao = 0;
     other.m_vbo = 0;
@@ -162,3 +160,29 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept
 
     return *this;
 }
+
+size_t Mesh::getVertexCount() const
+{
+    return m_vertexCount;
+}
+
+size_t Mesh::getIndexCount() const
+{
+    return m_indexCount;
+}
+
+std::vector<glimac::Geometry::Mesh> Mesh::getSubMeshes() const
+{
+    return m_subMeshes;
+}
+
+std::vector<glimac::Geometry::Material> Mesh::getMaterials() const
+{
+    return m_materials;
+}
+
+GLuint Mesh::getVAO() const
+{
+    return m_vao;
+};
+

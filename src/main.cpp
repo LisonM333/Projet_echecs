@@ -13,6 +13,7 @@
 #include "Shader.hpp"
 #include "glimac/TrackballCamera.hpp"
 #include "glimac/common.hpp"
+#include "glm/detail/qualifier.hpp"
 #include "glm/fwd.hpp"
 #include "includes/types.hpp"
 #include "quick_imgui/quick_imgui.hpp"
@@ -161,16 +162,23 @@ void renderEverything(char** argv, std::array<std::array<Piece*, 8>, 8> lines)
 
     std::optional<Renderer> renderer;
     std::optional<Shader>   shader;
-    std::optional<Mesh>     boardMesh;
+    // std::optional<Shader>   shaderLighting;
+
+    std::optional<Mesh> boardMesh;
+    std::optional<Mesh> caseMesh;
     // glimac::Geometry cube;
 
     // std::vector<Piece>      pieces{init_game_2D_m_pieces()};
     std::vector<piece_type> pieces_type{list_different_pieces_types()};
 
     MeshMap meshes;
-    // std::vector<glimac::Geometry> meshes;
 
-    ShaderFile shader_files{.vertexFile = "/assets/shaders/3D.vs.glsl", .fragmentFile = "/assets/shaders/normals.fs.glsl"};
+    // Lights
+    glm::vec3 worldLightDir = glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f));
+
+    // ShaderFile shader_files{.vertexFile = "/assets/shaders/3D.vs.glsl", .fragmentFile = "/assets/shaders/normals.fs.glsl"};
+
+    ShaderFile shader_files{.vertexFile = "/assets/shaders/3D.vs.glsl", .fragmentFile = "/assets/shaders/directionallight.fs.glsl"};
 
     quick_imgui::loop(
         "Chessimac",
@@ -180,10 +188,11 @@ void renderEverything(char** argv, std::array<std::array<Piece*, 8>, 8> lines)
             {
                 shader.emplace(appPath, shader_files);
             }
-            catch (const std::exception&)
+            catch (const std::exception& e)
             {
                 std::cout << "path vertex shader used : " << appPath.dirPath() << shader_files.vertexFile << "\n";
                 std::cout << "path vertex shader used : " << appPath.dirPath() << shader_files.fragmentFile << "\n";
+                std::cerr << "shader error : " << e.what() << "\n";
             }
 
             meshes = init_3D_meshes_pieces(pieces_type, appPath);
@@ -191,43 +200,85 @@ void renderEverything(char** argv, std::array<std::array<Piece*, 8>, 8> lines)
             boardObj.loadOBJ(appPath.dirPath()+"/assets/models/Board/Board_cube.obj",appPath.dirPath()+"/assets/models/Board/Board_cube.mtl");
             boardMesh.emplace(boardObj);
             
+            // glimac::Geometry caseObj;
+            // caseObj.loadOBJ(appPath.dirPath()+"/assets/models/Board/Case_cube.obj",appPath.dirPath()+"/assets/models/Board/Case_cube.mtl");
+            // caseMesh.emplace(caseObj);
+            
             camera.moveFront(-40.f);
             glEnable(GL_DEPTH_TEST); },
 
          .loop = [&]() {
             ImGui::ShowDemoWindow();
 
+            if (!renderer || !shader) return;
+
             renderer->bind();
             shader->bind();
+
+            // renderer->setup_frame(*shader, camera, screen_width, screen_height, worldLightDir );
 
             glm::mat4 viewMatrix{camera.getViewMatrix()};
             glm::mat4 projMatrix{glm::perspective(glm::radians(70.f), static_cast<float>(screen_width) / static_cast<float>(screen_height), .1f, 100.f)};
 
+            glm::vec3 lightIntensity{glm::vec3(1.f, 1.f, 1.f)};
+            glm::vec3 lightDir {glm::vec3(viewMatrix*glm::vec4(worldLightDir, .0f))};
+
+            shader->sendVec3("uLightIntensity", lightIntensity);
+            shader->sendVec3("uLightDir_vs", lightDir);
 
             if (boardMesh) {
+                glm::vec3 colorBoard = glm::vec3(0.97f, 0.94f, 0.88f); // #f7f0e0
                 glm::mat4 boardModel = glm::mat4(1.f);
+                
+                shader->sendVec3("uKd", colorBoard);
+                shader->sendVec3("uKs", glm::vec3(.1f, .3f, .3f));
+                shader->sendFloat("uShininess", 32.f);
+
+                // renderer->renderMesh(*shader, *boardMesh, boardModel, true);
+
                 glm::mat4 boardMV = viewMatrix * boardModel;
                 shader->sendMat4("uMVPMatrix", projMatrix * boardMV);
                 shader->sendMat4("uMVMatrix", boardMV);
                 shader->sendMat4("uNormalMatrix", glm::transpose(glm::inverse(boardMV)));
+
                 boardMesh->draw();
             }
 
             float spacing {4.0f};
+            
             for (int x = 0; x < 8; x++)
             {
                 for (int y = 0; y < 8; y++)
                 {
+                    float posX = (static_cast<float>(x) - 3.5f) * spacing;
+                    float posZ = (static_cast<float>(y) - 3.5f) * spacing;
+
+                    // if (caseMesh) {
+                    //     glm::mat4 cellModel = glm::translate(glm::mat4(1.0f), glm::vec3(posX, 0.05f, posZ));
+                    //     // cellModel = glm::scale(cellModel, glm::vec3(3.9f, 0.1f, 3.9f));
+                    //     cellModel = glm::scale(cellModel, glm::vec3(spacing * 0.95f, 0.1f, spacing * 0.95f));
+                    //     glm::mat4 cellMV = viewMatrix * cellModel;
+                    //     shader->sendMat4("uMVPMatrix", projMatrix * cellMV);
+                    //     shader->sendMat4("uMVMatrix", cellMV);
+                    //     shader->sendMat4("uNormalMatrix", glm::transpose(glm::inverse(cellMV)));
+
+                    //     glm::vec3 caseColor = ((x + y) % 2 == 0) ? glm::vec3(1.0f) : glm::vec3(0.05f);
+                    //     shader->sendVec3("uKd", caseColor);
+                    //     shader->sendVec3("uKs", glm::vec3(0.1f));
+                    //     shader->sendFloat("uShininess", 2.0f);
+                    //     caseMesh->draw();
+                    // }
+
                     Piece* piece = lines[x][y];
                     if (piece == nullptr)
                         continue;
 
                     const Mesh& mesh_to_draw = meshes.at({piece->m_type, piece->m_is_white}); // get right mesh with type and color
-
-                    float posX = (static_cast<float>(x) - 3.5f) * spacing;
-                    float posZ = (static_cast<float>(y) - 3.5f) * spacing;
+                    const std::vector<glimac::Geometry::Mesh>& subMeshes {mesh_to_draw.getSubMeshes()};
+                    const std::vector<glimac::Geometry::Material>& materials {mesh_to_draw.getMaterials()};
 
                     // transformations matrices
+
                     glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(posX, 0.0f, posZ));
                     glm::mat4 mvMatrix = viewMatrix * modelMatrix;
                     glm::mat4 normalMatrix{glm::transpose(glm::inverse(mvMatrix))};
@@ -235,11 +286,34 @@ void renderEverything(char** argv, std::array<std::array<Piece*, 8>, 8> lines)
                     shader->sendMat4("uMVPMatrix", projMatrix * mvMatrix);
                     shader->sendMat4("uMVMatrix", mvMatrix);
                     shader->sendMat4("uNormalMatrix", normalMatrix);
+                    // renderer->renderMesh(shader, mesh, const glm::mat4 &modelMatrix, bool calls_draw)
 
-                    mesh_to_draw.draw();
-                }
+                    for (const glimac::Geometry::Mesh & subMesh : subMeshes){
+                        glm::vec3 colorWhite = glm::vec3(0.81f, 0.47f, 0.05f); // #cf780c
+                        glm::vec3 colorBlack = glm::vec3(0.22f, 0.68f, 0.62f); // #39ad9d  
 
+                        if (subMesh.m_nMaterialIndex != -1 && subMesh.m_nMaterialIndex < materials.size()){
+                            const glimac::Geometry::Material &material_to_use = materials[subMesh.m_nMaterialIndex];
+                            shader->sendVec3("uKd", material_to_use.m_Kd);
+                            shader->sendVec3("uKs", material_to_use.m_Ks);
+                            shader->sendFloat("uShininess", material_to_use.m_Shininess);
+                        }
+                        else {
+                            glm::vec3 fallBack_kd = piece->m_is_white ? colorWhite:colorBlack;
+                            shader->sendVec3("uKd", fallBack_kd);
+                            shader->sendVec3("uKs", glm::vec3(.4f));
+                            shader->sendFloat("uShininess", 16.0f);
+                        }
+
+                        // draw
+                        glBindVertexArray(mesh_to_draw.getVAO());
+                        glDrawElements(GL_TRIANGLES, subMesh.m_nIndexCount, GL_UNSIGNED_INT, (void*)(subMesh.m_nIndexOffset * sizeof(unsigned int)));
+                
+                    }
+                    
+                   }
             }
+
             renderer->unbind();
             ImGui::Begin("Viewport 3D");
             {
@@ -249,6 +323,7 @@ void renderEverything(char** argv, std::array<std::array<Piece*, 8>, 8> lines)
                 ImGui::Image((ImTextureID)renderer->texture(), window_size, ImVec2(0, 1), ImVec2(1, 0));
                 ImGui::EndChild();
 
+                
                 // camera rotation
                 if (ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Right))
                 {

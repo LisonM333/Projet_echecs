@@ -1,5 +1,7 @@
 #include "Renderer.hpp"
 #include <iostream>
+#include "glm/ext/matrix_clip_space.hpp"
+#include "glm/trigonometric.hpp"
 
 Renderer::Renderer(unsigned int width, unsigned int height)
     : m_width(width), m_height(height)
@@ -66,3 +68,30 @@ void Renderer::unbind() const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
+void Renderer::setup_frame(Shader& shader, const TrackballCamera& camera, float screen_width, float screen_height, const glm::vec3& worldLightDir)
+{
+    m_viewMatrix = camera.getViewMatrix();
+    m_projMatrix = glm::perspective(glm::radians(70.f), screen_width / screen_height, .1f, 100.f);
+
+    glm::vec3 lightDir{glm::vec3(m_viewMatrix * glm::vec4(worldLightDir, .0f))};
+
+    shader.sendVec3("uLightIntensity", glm::vec3(1.f));
+    shader.sendVec3("uLightDir_vs", lightDir);
+}
+
+// void Renderer::renderMesh(const Shader& shader, const Mesh& mesh, const glm::mat4& modelMatrix, bool calls_draw)
+// {
+//     glm::mat4 mvMatrix     = m_viewMatrix * modelMatrix;
+//     glm::mat4 mvpMatrix    = m_projMatrix * mvMatrix;
+//     glm::mat4 normalMatrix = glm::transpose(glm::inverse(mvMatrix));
+
+//     shader.sendMat4("uMVMatrix", mvMatrix);
+//     shader.sendMat4("uMVPMatrix", mvpMatrix);
+//     shader.sendMat4("uNormalMatrix", normalMatrix);
+
+//     if (calls_draw)
+//     {
+//         mesh.draw();
+//     }
+// }

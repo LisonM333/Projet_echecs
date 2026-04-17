@@ -3,8 +3,8 @@
 #include <glad/glad.h>
 #include <vector>
 // #include "glimac/Geometry.hpp"
-#include "glimac/Geometry.hpp"
-#include "glimac/common.hpp"
+#include <glimac/Geometry.hpp>
+#include <glimac/common.hpp>
 
 class Mesh {
 public:
@@ -19,8 +19,11 @@ public:
     Mesh(Mesh&& other) noexcept;
     Mesh& operator=(Mesh&& other) noexcept;
 
-    size_t getVertexCount() const;
-    size_t getIndexCount() const;
+    size_t                                  getVertexCount() const;
+    size_t                                  getIndexCount() const;
+    std::vector<glimac::Geometry::Mesh>     getSubMeshes() const;
+    std::vector<glimac::Geometry::Material> getMaterials() const;
+    GLuint                                  getVAO() const;
 
     void draw() const;
 
@@ -28,6 +31,10 @@ private:
     GLuint m_vao{};
     GLuint m_vbo{};
     GLuint m_ebo{};
+
     size_t m_indexCount{};
     size_t m_vertexCount{};
+
+    std::vector<glimac::Geometry::Material> m_materials;
+    std::vector<glimac::Geometry::Mesh>     m_subMeshes;
 };
