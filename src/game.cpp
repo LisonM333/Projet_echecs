@@ -49,15 +49,14 @@ std::vector<Piece> list_pieces_classic {Pw_1, Pw_2,Pw_3, Pw_4,Pw_5, Pw_6,Pw_7, P
 // Constructors
 Game::~Game() = default;
 
-Game::Game() : m_player(Player()), m_white_playing(true), m_board(Board(list_pieces_classic)), m_pieces(list_pieces_classic) {};
-Game::Game(const Game& game) : m_player(game.m_player), m_white_playing(game.m_white_playing), m_board(game.m_board), m_pieces(game.m_pieces) {};
+Game::Game() :  /*m_white_playing(true),*/ m_board(Board(list_pieces_classic)), m_pieces(list_pieces_classic) {};
+Game::Game(const Game& game) :  /*m_white_playing(game.m_white_playing),*/ m_board(game.m_board), m_pieces(game.m_pieces) {};
 
 Game& Game::operator=(const Game& game)
 {
     if (this != &game)
     {
-        m_player        = game.m_player;
-        m_white_playing = game.m_white_playing;
+        /*m_white_playing = game.m_white_playing;*/
         m_board         = game.m_board;
         m_pieces        = game.m_pieces;
     }
@@ -65,10 +64,15 @@ Game& Game::operator=(const Game& game)
 }
 
 // Methods
+void Game::get_kings(){
+    m_kings = m_board.get_kings();
+}
 
+bool Game::game_ended(){return m_kings.first->is_captured || m_kings.second->is_captured;}
 
 void Game::type_game(bool& classic, bool& letgo){
-    ImGui::PushFont(m_board.m_OtherFont);
+    ImGui::PushFont(m_Font);
+    //ImGui::ShowDemoWindow();
     ImGui::Begin("Game");
 
     ImGui::PushID(1);
@@ -90,10 +94,30 @@ void Game::type_game(bool& classic, bool& letgo){
     ImGui::PopFont();
 }
 
+void Game::end() {
+    ImGui::PushFont(m_Font);
+    ImGui::Begin("END");
+    if (m_kings.first->is_captured) {
+        ImGui::Text("Félicitations aux Noirs ! Ils ont gagné !");
+    } else if (m_kings.second->is_captured) {
+        ImGui::Text("Félicitations aux Blancs ! Ils ont gagné !");
+    }
+    ImGui::End();
+    ImGui::PopFont();
+}
+
+void Game::show_etat(){
+    for (Piece piece : m_pieces){
+        std::cout << piece.is_captured; 
+    }
+    std::cout << std::endl;
+}
+
 void Game::start() {
     bool classic = true;
     bool letgo = false;
     bool initialized = false;
+    bool game_over = false;
 
     quick_imgui::loop(
         "Chess",
@@ -107,8 +131,9 @@ void Game::start() {
                 ImFont* other = io.Fonts->AddFontFromFileTTF(
                 "C:\\Users\\ADMIN\\Desktop\\imac_2\\Prog_Objet_2\\projet\\Projet_echecs\\assets\\font\\Nunito\\static\\Nunito-Regular.ttf", 90.0f);
 
-                m_board.set_fonts(chess, other); 
-                        },
+                set_fonts(m_board, chess, other);
+                m_Font = other;
+            },
 
             .loop = [&]() {
                 if (!letgo) {
@@ -119,13 +144,28 @@ void Game::start() {
                     if (!initialized) {
                         m_board.reset_piece(list_pieces_classic);
                         m_pieces = list_pieces_classic;
+                        get_kings();
                         initialized = true;
+                        
                     }
 
                     m_board.board_representation();
+
+                    //show_etat();
+                    //m_board.show_etat();
+
+                        if (!game_over && game_ended()){
+                            game_over = true;
+                            std::cout << "fin du game !" <<'\n';
+                        }
+
+                        if (game_over){
+                            end();
+                        }
                 }
             },
         }
     );
 };
-void Game::end() {};
+
+
